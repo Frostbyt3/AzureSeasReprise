@@ -22,11 +22,11 @@ namespace Redux
         {    
             _handlers = new Dictionary<string, IngameCommandHandler>
                 {
-                {"exit", Process_Exit},
+                {"quit", Process_Exit},
                 {"heal", Process_Heal},
                 {"item", Process_Item},
                 {"level", Process_Level},
-                {"money", Process_Money},
+                {"silver", Process_Money},
                 {"cp", Process_CP},
                 {"str", Process_Str},
                 {"vit", Process_Vit},
@@ -52,18 +52,24 @@ namespace Redux
                 {"dumpskills", Process_DumpSkills},
                 {"maptest", Process_MapTest},
                 {"data", Process_Data},
-                {"broadcast", Process_Broadcast},
+                {"b", Process_Broadcast},
                 {"report", Process_Report},
+                {"whatmap", Process_What_Map},
+                {"call", Process_Call_Player},
+                {"ptele", Process_Goto_Player},
+                {"kick", Process_Kick_Player},
             };
         }
         private static void Process_Exit(Player client, string[] command)
         {
+            Console.WriteLine(client.Name + " has exited the game.");
             client.Disconnect();
         }
         private static void Process_Heal(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.GM)
                 return;
+            Console.WriteLine(client.Name + " has fully healed theirself.");
             client.Life = client.CombatStats.MaxLife;
             client.Mana = client.CombatStats.MaxMana;
         }
@@ -128,7 +134,10 @@ namespace Redux
                 return;
             byte val;
             if (command.Length > 1 && byte.TryParse(command[1], out val))
-            { client.SetLevel(val); client.Experience = 0; }
+            {
+                Console.WriteLine(client.Name + " has changed their level to " + val);
+                client.SetLevel(val);
+                client.Experience = 0; }
             else
                 client.SendMessage("Error: Format should be /level {#}");
         }
@@ -138,8 +147,11 @@ namespace Redux
             if (client.Account.Permission < PlayerPermission.GM)
                 return;
             uint val;
-            if (command.Length > 1 && uint.TryParse(command[1], out val))            
-            	client.Money = val;            
+            if (command.Length > 1 && uint.TryParse(command[1], out val))
+            {
+                Console.WriteLine(client.Name + " has changed their Silvers amount to " + val);
+                client.Money = val;
+            }
             else
                 client.SendMessage("Error: Format should be /money {#}");
         }
@@ -150,7 +162,10 @@ namespace Redux
                 return;
             uint val;
             if (command.Length > 1 && uint.TryParse(command[1], out val))
+            {
+                Console.WriteLine(client.Name + " has changed their CP amount to: " + val);
                 client.CP = val;
+            }
             else
                 client.SendMessage("Error: Format should be /cp {#}");
         }
@@ -162,6 +177,7 @@ namespace Redux
             ushort val;
             if (command.Length > 1 && ushort.TryParse(command[1], out val))
             {
+                Console.WriteLine(client.Name + " has changed their Strength to " + val);
                 client.Strength = val;
                 client.Recalculate();
             }
@@ -176,6 +192,7 @@ namespace Redux
             ushort val;
             if (command.Length > 1 && ushort.TryParse(command[1], out val))
             {
+                Console.WriteLine(client.Name + " has changed their Vitality to " + val);
                 client.Vitality = val;
                 client.Recalculate();
             }
@@ -190,6 +207,7 @@ namespace Redux
             ushort val;
             if (command.Length > 1 && ushort.TryParse(command[1], out val))
             {
+                Console.WriteLine(client.Name + " has changed their Agility to " + val);
                 client.Agility = val;
                 client.Recalculate();
             }
@@ -204,6 +222,7 @@ namespace Redux
             ushort val;
             if (command.Length > 1 && ushort.TryParse(command[1], out val))
             {
+                Console.WriteLine(client.Name + " has changed their Spirit to " + val);
                 client.Spirit = val;
                 client.Recalculate();
             }
@@ -217,6 +236,7 @@ namespace Redux
             byte val;
             if (command.Length > 1 && byte.TryParse(command[1], out val))
             {
+                Console.WriteLine(client.Name + " has changed their class to #: " + val);
                 client.Character.Profession = val;
                 client.Send(new UpdatePacket(client.UID, UpdateType.Profession, client.Character.Profession));
                 client.Recalculate();
@@ -235,6 +255,7 @@ namespace Redux
             if (byte.TryParse(command[1], out val))
             {
                 client.AddEffect((ClientEffect)(1ul << val), duration * Common.MS_PER_SECOND);
+                Console.WriteLine(client.Name + " has added the effect #: " + val + " for " + duration + " milliseconds.");
             }
             else
                 client.SendMessage("Error: Format should be /effect {#}");
@@ -245,7 +266,10 @@ namespace Redux
                 return;
             ushort id, level;
             if (command.Length > 2 && ushort.TryParse(command[1], out id) && ushort.TryParse(command[2], out level))
-                client.CombatManager.AddOrUpdateSkill(id, level);             
+            {
+                client.CombatManager.AddOrUpdateSkill(id, level);
+                Console.WriteLine(client.Name + " has added or changed skill ID: " + id + " to level " + level);
+            }
             else
                 client.SendMessage("Error: Format should be /skill {###} {#}");
         }
@@ -255,7 +279,10 @@ namespace Redux
                 return;
             ushort id, level;
             if (command.Length > 2 && ushort.TryParse(command[1], out id) && ushort.TryParse(command[2], out level))
+            {
                 client.CombatManager.AddOrUpdateProf(id, level);
+                Console.WriteLine(client.Name + " has changed his proficiency of ID: " + id + " to level " + level);
+            }
             else
                 client.SendMessage("Error: Format should be /prof id {lvl}");
         }
@@ -273,9 +300,75 @@ namespace Redux
                     client.SendMessage("Error:Unhandled map ID " + id);
             }
             else if (command.Length > 3 && ushort.TryParse(command[2], out x) && ushort.TryParse(command[3], out y) && ushort.TryParse(command[1], out id))
+            {
                 client.ChangeMap(id, x, y);
+                Console.WriteLine(client.Name + " has teleported to Map ID: " + id + " X: " + x + " Y: " + y + ".");
+            }
             else
                 client.SendMessage("Error: Format should be /map {id} {x} {y}");
+        }
+        private static void Process_What_Map(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.PM)
+                return;
+            client.SendMessage("Current Map ID: " + client.MapID);
+        }
+        private static void Process_Call_Player(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.GM)
+                return;
+            Player role = null;
+            foreach (Player r in Redux.Managers.PlayerManager.Players.Values)
+            {
+                if (r.Name.ToLower() == command[1].ToLower())
+                {
+                    role = r;
+                    break;
+                }
+            }
+            if (role != null)
+            {
+                role.ChangeMap(client.MapID, client.X, client.Y);
+                Console.WriteLine(client.Name + " has recalled " + role.Name + " to their location.");
+            }
+        }
+        private static void Process_Goto_Player(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.GM)
+                return;
+            Player role = null;
+            foreach (Player r in Redux.Managers.PlayerManager.Players.Values)
+            {
+                if (r.Name.ToLower() == command[1].ToLower())
+                {
+                    role = r;
+                    break;
+                }
+            }
+            if (role != null)
+            {
+                client.ChangeMap(role.MapID, role.X, role.Y);
+                Console.WriteLine(client.Name + " has teleported to " + role.Name + ".");
+            }
+        }
+        private static void Process_Kick_Player(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.GM)
+                return;
+            Player role = null;
+            foreach (Player r in Redux.Managers.PlayerManager.Players.Values)
+            {
+                if (r.Name.ToLower() == command[1].ToLower())
+                {
+                    role = r;
+                    break;
+                }
+            }
+            if (role != null)
+            {
+                role.Disconnect();
+                Console.WriteLine(client.Name + " has kicked " + role.Name + " from the server.");
+            }
         }
         private static void Process_Debug(Player client, string[] command)
         {
@@ -329,6 +422,7 @@ namespace Redux
             if (command.Length > 1 && byte.TryParse(command[1], out xp))
             {
                 client.Xp = xp;
+                Console.WriteLine(client.Name + " has used the XP command.");
             }
             else
                 client.SendMessage("Error: Format should be /xp {#}");
@@ -439,6 +533,7 @@ namespace Redux
             {
                 foreach (var skill in client.CombatManager.skills.Keys)
                     client.CombatManager.TryRemoveSkill(skill);
+                Console.WriteLine(client.Name + " is testing a new class.");
                 switch (command[1].ToLower())
                 {
                     case "tro":

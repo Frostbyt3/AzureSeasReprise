@@ -75,7 +75,7 @@
         public static uint MINUTES_BANNED_BRUTEFORCE = 30;
         public static uint MAX_CONNECTIONS_PER_MINUTE = 10;
 
-        public static string GAME_IP = "10.0.0.7",
+        public static string GAME_IP = "0.0.0.0",
                              SERVER_NAME = "AzureSeas";
 
         public const string SYSTEM_NAME = "SYSTEM",
