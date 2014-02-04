@@ -186,6 +186,18 @@ namespace Redux.Game_Server
                 Commands.Handle(client, packet.Words.Substring(1).ToLower().Split(' '));
                 return;
             }
+            if (client.Alive == false && packet.Type != ChatType.Ghost)
+            {
+                foreach (Player p in Redux.Managers.PlayerManager.Players.Values)
+                {
+                    if (p.ProfessionType == ProfessionType.WaterTaoist || p.Alive == false)
+                    {
+                        packet.Type = ChatType.Ghost;
+                        client.SendToScreen(packet, false);
+                    }
+                }
+                return;
+            }
             switch (packet.Type)
             {
                 case ChatType.Talk:
@@ -196,21 +208,35 @@ namespace Redux.Game_Server
                         var target = Managers.PlayerManager.GetUser(packet.Hearer);
                         if (target != null)
                         {
-                            Database.ServerDatabase.Context.ChatLogs.Add(new DbChatLog(packet));
-                            packet.SpeakerLookface = client.Lookface;
-                            packet.HearerLookface = target.Lookface;
-                            target.Send(packet);
+                            if (client.Alive == true)
+                            {
+                                Database.ServerDatabase.Context.ChatLogs.Add(new DbChatLog(packet));
+                                packet.SpeakerLookface = client.Lookface;
+                                packet.HearerLookface = target.Lookface;
+                                target.Send(packet);
+                            }
+                            else
+                            {
+                                client.SendMessage("You can only use the Talk or Team channels when you are dead.");
+                            }
                         }
                         else
                         {
-                            packet.Words = packet.Hearer + " is not online";
+                            packet.Words = packet.Hearer + " is not online.";
                             client.Send(packet);
                         }
                         break;
                     }
                 case ChatType.Friend:
-                    foreach (var friend in client.AssociateManager.Friends.Values)
+                    if (client.Alive == true)
+                    {
+                        foreach (var friend in client.AssociateManager.Friends.Values)
                         friend.Send(packet);
+                    }
+                    else
+                            {
+                                client.SendMessage("You can only use the Talk or Team channels when you are dead.");
+                            }
                     break;
 
                 case ChatType.SynAnnounce:
@@ -240,6 +266,24 @@ namespace Redux.Game_Server
                     {
                         client.Shop.HawkMsg = packet;
                         client.SendToScreen(packet);
+                    }
+                    break;
+                case ChatType.Syndicate:
+                    {
+                        var guildId = client.GuildId;
+                        var Guild = GuildManager.GetGuild(guildId);
+                        if (Guild != null)
+                        {
+                            if (client.Alive == true)
+                            {
+                                foreach (Player p in client.Guild.Members())
+                                p.Send(packet);
+                            }
+                            else
+                            {
+                                client.SendMessage("You can only use the Talk or Team channels when you are dead.");
+                            }
+                        }
                     }
                     break;
             }
