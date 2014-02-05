@@ -242,7 +242,7 @@ namespace Redux.Game_Server
                 case MonsterMode.Attack:
                     {
                         var target = Map.Search<Entity>(TargetID);
-                        if (target == null || !target.Alive || BaseMonster.Mesh == 900 || target.HasEffect(ClientEffect.Fly))
+                        if (target == null || !target.Alive || target.HasEffect(ClientEffect.Fly))
                         { Mode = MonsterMode.Idle; return; }
                         var dist = Calculations.GetDistance(Location, target.Location);
                         if (dist > BaseMonster.ViewRange)

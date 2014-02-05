@@ -186,39 +186,36 @@ namespace Redux.Game_Server
                 Commands.Handle(client, packet.Words.Substring(1).ToLower().Split(' '));
                 return;
             }
-            if (client.Alive == false && packet.Type != ChatType.Ghost)
-            {
-                foreach (Player p in Redux.Managers.PlayerManager.Players.Values)
-                {
-                    if (p.ProfessionType == ProfessionType.WaterTaoist || p.Alive == false)
-                    {
-                        packet.Type = ChatType.Ghost;
-                        client.SendToScreen(packet, false);
-                    }
-                }
-                return;
-            }
             switch (packet.Type)
             {
                 case ChatType.Talk:
-                    client.SendToScreen(packet);
+                    if (client.Alive == true)
+                    {
+                        client.SendToScreen(packet);
+                        break;
+                    }
+                    /*else if (client.Alive == false)
+                    {
+                        foreach (Player p in Redux.Managers.PlayerManager.Players.Values)
+                            if (p.ProfessionType == ProfessionType.WaterTaoist)
+                            {
+                                packet.Type = ChatType.Ghost;
+                                p.SendToScreen(packet);
+                                break;
+                            }
+                            else
+                                break;
+                    }*/
                     break;
                 case ChatType.Whisper:
                     {
                         var target = Managers.PlayerManager.GetUser(packet.Hearer);
                         if (target != null)
                         {
-                            if (client.Alive == true)
-                            {
                                 Database.ServerDatabase.Context.ChatLogs.Add(new DbChatLog(packet));
                                 packet.SpeakerLookface = client.Lookface;
                                 packet.HearerLookface = target.Lookface;
                                 target.Send(packet);
-                            }
-                            else
-                            {
-                                client.SendMessage("You can only use the Talk or Team channels when you are dead.");
-                            }
                         }
                         else
                         {
@@ -228,15 +225,8 @@ namespace Redux.Game_Server
                         break;
                     }
                 case ChatType.Friend:
-                    if (client.Alive == true)
-                    {
                         foreach (var friend in client.AssociateManager.Friends.Values)
                         friend.Send(packet);
-                    }
-                    else
-                            {
-                                client.SendMessage("You can only use the Talk or Team channels when you are dead.");
-                            }
                     break;
 
                 case ChatType.SynAnnounce:
@@ -274,15 +264,8 @@ namespace Redux.Game_Server
                         var Guild = GuildManager.GetGuild(guildId);
                         if (Guild != null)
                         {
-                            if (client.Alive == true)
-                            {
-                                foreach (Player p in client.Guild.Members())
+                            foreach (Player p in client.Guild.Members())
                                 p.Send(packet);
-                            }
-                            else
-                            {
-                                client.SendMessage("You can only use the Talk or Team channels when you are dead.");
-                            }
                         }
                     }
                     break;
@@ -467,6 +450,10 @@ namespace Redux.Game_Server
                 #endregion
                 #region Set Ghost Mesh
                 case DataAction.SetGhost:
+                    if (client.PK >= 100)
+                    {
+                        client.ChangeMap(6000);
+                    }
                     client.Transformation = (ushort)((client.Lookface % 10 > 2) ? 98 : 99);
                     break;
                 #endregion
@@ -1559,7 +1546,7 @@ namespace Redux.Game_Server
                             if (PlayerManager.GetUser(Name) != null)
                             {
                                 var player = PlayerManager.GetUser(Name);
-                                player.Send(new TalkPacket(ChatType.Syndicate, Name + " has been kicked out of the guild."));
+                                player.Send(new TalkPacket(ChatType.Syndicate, Name + " has been kicked out of the guild.", ChatColour.Blue));
                                 player.GuildAttribute.LeaveGuild();
 
                             }
@@ -1567,7 +1554,7 @@ namespace Redux.Game_Server
 
                             foreach (var member in _client.Guild.Members())
                             {
-                                member.Send(new TalkPacket(ChatType.Syndicate, Name + " has been kicked out of the guild."));
+                                member.Send(new TalkPacket(ChatType.Syndicate, Name + " has been kicked out of the guild.", ChatColour.Blue));
                                 member.GuildAttribute.SendInfoToClient();
                             }
 
@@ -1777,7 +1764,7 @@ namespace Redux.Game_Server
 
                         foreach (var member in client.Guild.Members())
                         {
-                            member.Send(new TalkPacket(ChatType.Syndicate, target.Name + " has joined the guild."));
+                            member.Send(new TalkPacket(ChatType.Syndicate, target.Name + " has joined the guild.", ChatColour.Blue));
                             member.GuildAttribute.SendInfoToClient();
                         }
 
@@ -1791,7 +1778,7 @@ namespace Redux.Game_Server
                         var rank = client.GuildRank;
                         if (rank == GuildRank.GuildLeader)
                         {
-                            client.SendSysMessage("The guild leader cannot leave the guild. Please transfer leadership.");
+                            client.SendSysMessage("The Guild Leader cannot leave the guild. Please transfer leadership first.");
                             return;
                         }
 
@@ -1852,7 +1839,7 @@ namespace Redux.Game_Server
                                 guild.SetAlly(i, 0);
                                 guild.BroadcastGuildMsg(GuildPackets.Create(GuildAction.ClearAlly, targetId, 0));
 
-                                guild.BroadcastGuildMsg(string.Format("[rank 1000] {0} has removed Guild {1} from the allies list!", client.Name, targetGuild.Name));
+                                guild.BroadcastGuildMsg(string.Format("[rank 1000] {0} has removed Guild {1} from the allies list!", client.Name, targetGuild.Name, ChatColour.Blue));
                             }
                         }
 
@@ -1864,7 +1851,7 @@ namespace Redux.Game_Server
                                 targetGuild.SetAlly(i, 0);
                                 targetGuild.BroadcastGuildMsg(GuildPackets.Create(GuildAction.ClearAlly, targetId, 0));
 
-                                targetGuild.BroadcastGuildMsg(string.Format("[rank 1000] {0} has removed Guild {1} from the allies list!", client.Name, targetGuild.Name));
+                                targetGuild.BroadcastGuildMsg(string.Format("[rank 1000] {0} has removed Guild {1} from the allies list!", client.Name, targetGuild.Name, ChatColour.Blue));
                             }
                         }
 

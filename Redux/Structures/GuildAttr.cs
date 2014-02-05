@@ -181,7 +181,7 @@ namespace Redux.Structures
                 if (_client.Level < level)
                 {
                     
-                    _client.SendSysMessage("You have not reached level " + level);
+                    _client.SendSysMessage("You have not reached level " + level + ".");
                     return false;
                 }
 
@@ -214,8 +214,8 @@ namespace Redux.Structures
                 JoinGuild(guildId, GuildRank.GuildLeader);
                 if (_data == null) return false;
 
-                
-                _client.SendSysMessage(string.Format("Congratulations! {0} has set up {1} successfully.", _client.Name, name));
+
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "The guild " + info.Name + " has been established by " + _client.Name + "!", ChatColour.Blue));
 
                 _client.Money -= money;
                 return true;
@@ -431,7 +431,7 @@ namespace Redux.Structures
                 var targetLeader = PlayerManager.GetUser(targetGuild.LeaderId);
                 if (targetLeader == null)
                 {
-                    _client.SendSysMessage("Target guild`s leader is offline!");
+                    _client.SendSysMessage("Target guild's leader is offline!");
                     return false;
                 }
 
@@ -483,8 +483,8 @@ namespace Redux.Structures
                 //targetGuild.SynchroInfo();
 
                 // broadcast guild message
-                guild.BroadcastMessage(string.Format("Guild Leader {0} has added Guild {1} to the allies list!", guild.LeaderName, targetGuild.Name));
-                targetGuild.BroadcastMessage(string.Format("Guild Leader {0} has added Guild {1} to the allies list!", targetGuild.LeaderName, guild.Name));
+                guild.BroadcastMessage(string.Format("Guild Leader {0} has added Guild {1} to the allies list!", guild.LeaderName, targetGuild.Name, ChatColour.Blue));
+                targetGuild.BroadcastMessage(string.Format("Guild Leader {0} has added Guild {1} to the allies list!", targetGuild.LeaderName, guild.Name, ChatColour.Blue));
 
                 return true;
             }
@@ -528,8 +528,8 @@ namespace Redux.Structures
                     {
                         guild.SetEnemy(i, targetGuild.Id);
 
-                        guild.BroadcastMessage(string.Format("Guild Leader {0} has added Guild {1} to the enemy list!", guild.LeaderName, targetGuild.Name));
-                        targetGuild.BroadcastMessage(string.Format("Guild {1}`s Guild Leader {0} has added our Guild to the enemy list!", guild.LeaderName, guild.Name));
+                        guild.BroadcastMessage(string.Format("Guild Leader {0} has added Guild {1} to the enemy list!", guild.LeaderName, targetGuild.Name, ChatColour.Blue));
+                        targetGuild.BroadcastMessage(string.Format("Guild {1}'s Guild Leader {0} has added our Guild to the enemy list!", guild.LeaderName, guild.Name, ChatColour.Blue));
                         break;
                     }
                 }
@@ -566,8 +566,8 @@ namespace Redux.Structures
                         {
 
                         }
-                        guild.BroadcastMessage(string.Format("Guild Leader {0} has removed Guild {1} from the enemy list!", guild.LeaderName, targetGuild.Name));
-                        targetGuild.BroadcastMessage(string.Format("Guild {1}`s Guild Leader {0} has removed our Guild from the enemy list!", guild.LeaderName, guild.Name));
+                        guild.BroadcastMessage(string.Format("Guild Leader {0} has removed Guild {1} from the enemy list!", guild.LeaderName, targetGuild.Name, ChatColour.Blue));
+                        targetGuild.BroadcastMessage(string.Format("Guild {1}'s Guild Leader {0} has removed our Guild from the enemy list!", guild.LeaderName, guild.Name, ChatColour.Blue));
                         break;
                     }
                 }
@@ -604,8 +604,8 @@ namespace Redux.Structures
                         {
 
                         }
-                        guild.BroadcastMessage(string.Format("Guild Leader {0} has removed Guild {1} from the allied list!", guild.LeaderName, targetGuild.Name));
-                        targetGuild.BroadcastMessage(string.Format("Guild {1}`s Guild Leader {0} has removed our Guild from the allied list!", guild.LeaderName, guild.Name));
+                        guild.BroadcastMessage(string.Format("Guild Leader {0} has removed Guild {1} from the allied list!", guild.LeaderName, targetGuild.Name, ChatColour.Blue));
+                        targetGuild.BroadcastMessage(string.Format("Guild {1}'s Guild Leader {0} has removed our Guild from the allied list!", guild.LeaderName, guild.Name, ChatColour.Blue));
                         
                     }
 
@@ -657,7 +657,7 @@ namespace Redux.Structures
                 if (!target.GuildAttribute.SetRank(rank))
                     return false;
 
-                guild.BroadcastMessage(string.Format("{0} has appointed {1} as Deputy Leader.", _client.Name, name, rank));
+                guild.BroadcastMessage(string.Format("{0} has appointed {1} as a Deputy Leader.", _client.Name, name, rank, ChatColour.Blue));
                 guild.BroadcastGuildMsg(GuildPackets.Create(GuildAction.Unknown39, (ushort)rank, 0));
 
                 return true;
@@ -693,7 +693,7 @@ namespace Redux.Structures
                 if (!target.GuildAttribute.SetRank(GuildRank.Member))
                     return false;
 
-                guild.BroadcastMessage(string.Format("{0} was discharged from the Deputy Leader position.", name, GuildRank.DeputyLeader));
+                guild.BroadcastMessage(string.Format("{0} was discharged from the Deputy Leader position.", name, GuildRank.DeputyLeader, ChatColour.Blue));
                 guild.BroadcastGuildMsg(GuildPackets.Create(GuildAction.Unknown41, 990, 0));
 
                 return true;

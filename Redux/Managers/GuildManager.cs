@@ -124,7 +124,7 @@ namespace Redux.Managers
             var guild = GetGuild(guildId);
             if (guild != null)
             {
-                PlayerManager.SendToServer(new Packets.Game.TalkPacket(ChatType.GM, string.Format("Guild {0} has been terminated.", guild.Name)));
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "The guild " + guild.Name + " has been disbanded.", ChatColour.Blue));
                 PlayerManager.SendToServer(Packets.Game.GuildPackets.Create(GuildAction.DestroySyndicate, guildId, 0));
 
                 Structures.Guild targetGuild = null;

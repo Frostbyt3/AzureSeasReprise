@@ -31,7 +31,7 @@ namespace Redux.Managers
             }
             var sorted = from I in GuildScores orderby I.Value descending select I;
             var winner = sorted.First();
-            PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, winner.Key.Name + " has emerged victorious with a score of: " + winner.Value + " Congratulations for their valiant efforts"));
+            PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, winner.Key.Name + " has acquired the Guild Pole! The next round has started!", ChatColour.Blue));
             
             CurrentWinner = winner.Key;
             
@@ -55,8 +55,9 @@ namespace Redux.Managers
 
         public static void GuildWarEnd()
         {
-            PlayerManager.SendToServer(new Packets.Game.TalkPacket(ChatType.GM, CurrentWinner + " has won! Congratulations to everyone for their efforts."));
+            PlayerManager.SendToServer(new Packets.Game.TalkPacket(ChatType.GM, CurrentWinner + " has emerged victorious in this week's Guild War! Congratulations!", ChatColour.Blue));
             Running = false;
+
             
             SOB leftGate = MapManager.PullMapByID(1038).Search<SOB>(6701);
             
@@ -139,7 +140,7 @@ namespace Redux.Managers
                         loop++;
                         foreach (Player role in PlayerManager.Players.Values)
                             if (role.Map.ID == 1038)
-                                role.Send(new Packets.Game.TalkPacket(ChatType.SynWarNext, "N° " + loop + ": " + score.Key.Name + ": " + score.Value));
+                                role.Send(new Packets.Game.TalkPacket(ChatType.SynWarNext, "N° " + loop + ": " + score.Key.Name + ": " + score.Value, ChatColour.Blue));
                     }  
                 }
             }

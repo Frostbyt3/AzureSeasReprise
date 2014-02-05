@@ -58,7 +58,32 @@ namespace Redux
                 {"call", Process_Call_Player},
                 {"ptele", Process_Goto_Player},
                 {"kick", Process_Kick_Player},
+                {"maint", Process_Server_Maint},
             };
+        }
+        private static void Process_Server_Maint(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.GM)
+                return;
+            byte timer;
+            if (command.Length > 1 && byte.TryParse(command[1], out timer))
+            {
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "The server will shut down for maintenance in " + timer + " minutes. Please log off immediately to avoid data loss.", ChatColour.Red));
+                System.Threading.Thread.Sleep(timer * Common.MS_PER_MINUTE);
+                if (timer == 60)
+                {
+
+                Database.ServerDatabase.Context.Characters.ResetOnlineCharacters();
+                foreach (Player user in Redux.Managers.PlayerManager.Players.Values)
+                        {
+                            user.Save();//saves and removes from maps
+                            //any other code such as printing out that server is shutting down and then delaying before closing server down fully?
+                        }
+                        Console.WriteLine("Saved " + Redux.Managers.PlayerManager.Players.Count + " characters successfully.");
+                        Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "The server is shutting down for maintenance. See you soon!", ChatColour.Red));
+                        System.Threading.Thread.Sleep(5000);
+                        System.Environment.Exit(-1);
+            }
         }
         private static void Process_Exit(Player client, string[] command)
         {
@@ -67,7 +92,7 @@ namespace Redux
         }
         private static void Process_Heal(Player client, string[] command)
         {
-            if (client.Account.Permission < PlayerPermission.GM)
+            if (client.Account.Permission < PlayerPermission.GM || client.PK >= 100)
                 return;
             Console.WriteLine(client.Name + " has fully healed theirself.");
             client.Life = client.CombatStats.MaxLife;
@@ -288,7 +313,7 @@ namespace Redux
         }
         private static void Process_Map(Player client, string[] command)
         {
-            if (client.Account.Permission < PlayerPermission.GM)
+            if (client.Account.Permission < PlayerPermission.GM || client.PK >= 100)
                 return;
             ushort id, x, y;
             if (command.Length == 2 && ushort.TryParse(command[1], out id))
@@ -334,7 +359,7 @@ namespace Redux
         }
         private static void Process_Goto_Player(Player client, string[] command)
         {
-            if (client.Account.Permission < PlayerPermission.GM)
+            if (client.Account.Permission < PlayerPermission.GM || client.PK >= 100)
                 return;
             Player role = null;
             foreach (Player r in Redux.Managers.PlayerManager.Players.Values)
@@ -353,7 +378,7 @@ namespace Redux
         }
         private static void Process_Kick_Player(Player client, string[] command)
         {
-            if (client.Account.Permission < PlayerPermission.GM)
+            if (client.Account.Permission < PlayerPermission.GM || client.PK >= 100)
                 return;
             Player role = null;
             foreach (Player r in Redux.Managers.PlayerManager.Players.Values)
@@ -380,7 +405,7 @@ namespace Redux
         }
         private static void Process_Transform(Player client, string[] command)
         {
-            if (client.Account.Permission < PlayerPermission.GM)
+            if (client.Account.Permission < PlayerPermission.GM || client.PK >= 100)
                 return;
 
             ushort transform;
@@ -415,7 +440,7 @@ namespace Redux
         }
         private static void Process_Xp(Player client, string[] command)
         {
-            if (client.Account.Permission < PlayerPermission.GM)
+            if (client.Account.Permission < PlayerPermission.GM || client.PK >= 100)
                 return;
 
             byte xp;
@@ -633,7 +658,7 @@ namespace Redux
         }
         private static void Process_MapTest(Player client, string[] command)
         {
-            if (client.Account.Permission < PlayerPermission.GM)
+            if (client.Account.Permission < PlayerPermission.GM || client.PK >= 100)
                 return;
             try
             {

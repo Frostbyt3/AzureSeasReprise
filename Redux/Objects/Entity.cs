@@ -191,7 +191,7 @@ namespace Redux.Game_Server
                         {
                             var attacker = Map.Search<Player>(_attacker);
                             if (attacker != null)
-                                attacker.AddEffect(ClientEffect.Blue, 3000);
+                                attacker.AddEffect(ClientEffect.Blue, 10000);
                         }
                     }
 

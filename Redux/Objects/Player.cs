@@ -511,6 +511,12 @@ namespace Redux.Game_Server
                     killer.AddEffect(ClientEffect.Blue, 180000, true); //3 minutes blue name
 
                 }
+                if (base.HasEffect(ClientEffect.Black))
+                {
+                    PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, killer.Name + " has sent " + PlayerManager.GetUser(base.Name) + " to Jail for killing too many players and has earned a reward!"));
+                    SendSysMessage("You have earned 50,000 Silver for capturing " + base.Name + "!");
+                    killer.Money += 50000;
+                }
             }
 
             if (Mining)
@@ -548,6 +554,18 @@ namespace Redux.Game_Server
 
             RemoveEffect(ClientEffect.Dead);
             RemoveEffect(ClientEffect.Ghost);
+            if (PK >= 100 && !HasEffect(ClientEffect.Black))
+            {
+                AddEffect(ClientEffect.Black, ((PK - 99) * 6) * 60000, true);//Adds black name
+            }
+            if (PK >= 30 && PK < 100 && !HasEffect(ClientEffect.Red))
+            {
+                AddEffect(ClientEffect.Red, ((PK - 29) * 6) * 60000, true);//Adds red name
+            }
+            if (PK < 30 && HasEffect(ClientEffect.Red))
+            {
+                RemoveEffect(ClientEffect.Red);
+            }
 
             //Will only do something if revive skill is done. All logical checks are done in packet handler.
             RemoveStatus(Enum.ClientStatus.ReviveTimeout);
@@ -910,23 +928,8 @@ namespace Redux.Game_Server
                 return;
             if (!Constants.DEBUG_MODE && Common.Clock - LastPingReceived > Common.MS_PER_SECOND * 45)
             { Disconnect(); Console.WriteLine("Connection timeout for {0} with {1} ms latency", Name, Common.Clock - LastPingReceived); return; }
-            if (Alive)
-            {
-                if ((Character.HeavenBlessExpires > DateTime.Now && stamina < 150) || stamina < 100)
-                {
-                    byte toGain = 3;
-                    if ((Action == ActionType.Sit || Action == ActionType.Lie) && Common.Clock - LastSitAt > Common.MS_PER_SECOND)
-                        toGain = 11;
-                    Stamina = (byte)Math.Min((Character.HeavenBlessExpires > DateTime.Now) ? 150 : 100, stamina + toGain);
-                }
-                if (!HasEffect(ClientEffect.XpStart) && Common.Clock - LastXpUp > Common.MS_PER_SECOND * 3)
-                {
-                    Xp = (byte)(Math.Min(100, Xp + 1));
-                    if (xp == 100)
-                        AddEffect(ClientEffect.XpStart, 20000);
-                    LastXpUp = Common.Clock;
-                }
-                if (PK > 0 && Common.Clock - LastPkPoint > Common.MS_PER_MINUTE * 6)//If last Pk point has been 6 minutes
+            
+            if (PK > 0 && Common.Clock - LastPkPoint > Common.MS_PER_MINUTE * 6)//If last Pk point has been 6 minutes
                 {
                     PK -= 1;//Minus 1 PK point
                     LastPkPoint = Common.Clock;//Set last reduction time to now
@@ -943,6 +946,24 @@ namespace Redux.Game_Server
                     if (PK < 30 && HasEffect(ClientEffect.Red))
                         RemoveEffect(ClientEffect.Red);
                 }
+            
+            if (Alive)
+            {
+                if ((Character.HeavenBlessExpires > DateTime.Now && stamina < 150) || stamina < 100)
+                {
+                    byte toGain = 3;
+                    if ((Action == ActionType.Sit || Action == ActionType.Lie) && Common.Clock - LastSitAt > Common.MS_PER_SECOND)
+                        toGain = 11;
+                    Stamina = (byte)Math.Min((Character.HeavenBlessExpires > DateTime.Now) ? 150 : 100, stamina + toGain);
+                }
+                if (!HasEffect(ClientEffect.XpStart) && Common.Clock - LastXpUp > Common.MS_PER_SECOND * 3)
+                {
+                    Xp = (byte)(Math.Min(100, Xp + 1));
+                    if (xp == 100)
+                        AddEffect(ClientEffect.XpStart, 20000);
+                    LastXpUp = Common.Clock;
+                }
+                
 
                 if (Mining && Common.Clock > NextMine && Map.MapInfo.Type.HasFlag(MapTypeFlags.MineEnable))
                 {
