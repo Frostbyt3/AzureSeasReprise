@@ -70,8 +70,8 @@ namespace Redux
             {
                 Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "The server will shut down for maintenance in " + timer + " minutes. Please log off immediately to avoid data loss.", ChatColour.Red));
                 System.Threading.Thread.Sleep(timer * Common.MS_PER_MINUTE);
-                if (timer == 60)
-                {
+                //if (timer == 60)
+                //{
 
                 Database.ServerDatabase.Context.Characters.ResetOnlineCharacters();
                 foreach (Player user in Redux.Managers.PlayerManager.Players.Values)

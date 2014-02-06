@@ -10,7 +10,7 @@ namespace Redux.Npcs
     {
         private bool isFire;
         /// <summary>
-        /// Handles NPC usage for [10000] Taoist Star
+        /// Handles NPC usage for [10000] TaoistMoon
         /// </summary>
         public NPC_10000(Game_Server.Player _client)
             : base(_client)

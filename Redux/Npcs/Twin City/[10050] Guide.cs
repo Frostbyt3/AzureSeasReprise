@@ -11,7 +11,7 @@ namespace Redux.Npcs
     public class NPC_10050 : INpc
     {
         /// <summary>
-        /// Handles NPC usage for [10050] Twin City Conductress
+        /// Handles NPC usage for [10050] Twin City Guide
         /// </summary>
         public NPC_10050(Game_Server.Player _client)
             : base(_client)
@@ -27,7 +27,7 @@ namespace Redux.Npcs
             switch (_linkback)
             {
                 case 0:
-                    AddText("Where are you heading for? I can teleport you for a price of 100 silver.");
+                    AddText("Where are you heading for? I can teleport you for a price of 500 Silver.");
                     AddOption("Phoenix Castle", 1);
                     AddOption("Desert City", 2);
                     AddOption("Ape Mountain", 3);
@@ -37,74 +37,74 @@ namespace Redux.Npcs
                     AddOption("Just passing by.", 255);
                     break;
                 case 1://Phoenix Castle
-                    if (_client.Money >= 100)
+                    if (_client.Money >= 500)
                     {
-                        _client.Money -= 100;
+                        _client.Money -= 500;
                         _client.ChangeMap(1002, 957, 557);
                     }
                     else
                     {
-                        AddText("Sorry, you do not have 100 silver.");
+                        AddText("Sorry, you do not have 500 Silver.");
                         AddOption("I see.", 255);
                     }
                     break;
                 case 2://Desert City
-                    if (_client.Money >= 100)
+                    if (_client.Money >= 500)
                     {
-                        _client.Money -= 100;
+                        _client.Money -= 500;
                         _client.ChangeMap(1002, 64, 469);
                     }
                     else
                     {
-                        AddText("Sorry, you do not have 100 silver.");
+                        AddText("Sorry, you do not have 500 Silver.");
                         AddOption("I see.", 255);
                     }
                     break;
                 case 3://Ape Mountain
-                    if (_client.Money >= 100)
+                    if (_client.Money >= 500)
                     {
-                        _client.Money -= 100;
+                        _client.Money -= 500;
                         _client.ChangeMap(1002, 555, 957);
                     }
                     else
                     {
-                        AddText("Sorry, you do not have 100 silver.");
+                        AddText("Sorry, you do not have 500 Silver.");
                         AddOption("I see.", 255);
                     }
                     break;
                 case 4://Bird Island
-                    if (_client.Money >= 100)
+                    if (_client.Money >= 5100)
                     {
-                        _client.Money -= 100;
+                        _client.Money -= 500;
                         _client.ChangeMap(1002, 228, 193);
                     }
                     else
                     {
-                        AddText("Sorry, you do not have 100 silver.");
+                        AddText("Sorry, you do not have 500 Silver.");
                         AddOption("I see.", 255);
                     }
                     break;
                 case 5://Mine Cave
-                    if (_client.Money >= 100)
+                    if (_client.Money >= 500)
                     {
-                        _client.Money -= 100;
+                        _client.Money -= 500;
                         _client.ChangeMap(1002, 53, 399);
                     }
                     else
                     {
-                        AddText("Sorry, you do not have 100 silver.");
+                        AddText("Sorry, you do not have 500 Silver.");
                         AddOption("I see.", 255);
                     }
                     break;
                 case 6://Market
-                    if (_client.Money >= 100)
+                    if (_client.Money >= 500)
                     {
-                        _client.Money -= 100;
-                        _client.ChangeMap(1036, 211, 196);
+                        _client.Money -= 500;
+                        _client.ChangeMap(1036);
                     }
                     else
                     {
-                        AddText("Sorry, you do not have 100 silver.");
+                        AddText("Sorry, you do not have 500 Silver.");
                         AddOption("I see.", 255);
                     }
                     break;

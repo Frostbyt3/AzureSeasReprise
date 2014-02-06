@@ -1,7 +1,7 @@
 ﻿/*
  * User: pro4never
  * Date: 9/21/2013
- * Time: 8:08 PM
+ * Time: 8:14 PM
  */
 using System;
 using System.Collections.Generic;
@@ -13,15 +13,15 @@ using Redux.Packets.Game;
 namespace Redux.Npcs
 {
     /// <summary>
-    /// Handles NPC usage for [380] Guild Conductress
+    /// Handles NPC usage for [101617] IslandEscort
     /// </summary>
-    public class NPC_380 : INpc
+    public class NPC_101617 : INpc
     {
 
-        public NPC_380(Game_Server.Player _client)
+        public NPC_101617(Game_Server.Player _client)
             :base (_client)
     	{
-    		ID = 380;	
+    		ID = 101617;	
 			Face = 123;    
     	}
 
@@ -32,12 +32,19 @@ namespace Redux.Npcs
             switch (_linkback)
             {
                 case 0:
-                    AddText("What can I do for you?");
-                    AddOption("Enter the guild area.", 1);
+                    AddText("Are you heading for Bird Island? It is free for our members, and 5,000 ");
+                    AddText("Silver for others.");
+                    AddOption("Please teleport me there.", 1);
                     AddOption("Just passing by.", 255);
                     break;
                 case 1:
-                    _client.ChangeMap(1038, 350, 339);
+                    if (_client.Money >= 5000)
+                    { _client.ChangeMap(1015, 716, 573); _client.Money -= 5000; Redux.Managers.GuildWar.CurrentWinner.Money += 5000; }
+                    else
+                    {
+                        AddText("Sorry, you do not have enough.");
+                        AddOption("I see.", 255);
+                    }
                     break;
             }
             AddFinish();

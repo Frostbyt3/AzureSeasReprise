@@ -13,15 +13,15 @@ using Redux.Packets.Game;
 namespace Redux.Npcs
 {
     /// <summary>
-    /// Handles NPC usage for [102093] Guild Conductress 1
+    /// Handles NPC usage for [102091] DesertEscort
     /// </summary>
-    public class NPC_102093 : INpc
+    public class NPC_102091 : INpc
     {
 
-        public NPC_102093(Game_Server.Player _client)
+        public NPC_102091(Game_Server.Player _client)
             :base (_client)
     	{
-            ID = 102093;	
+            ID = 102091;	
 			Face = 123;    
     	}
 
@@ -32,12 +32,19 @@ namespace Redux.Npcs
             switch (_linkback)
             {
                 case 0:
-                    AddText("What can I do for you?");
-                    AddOption("Enter the guild area.", 1);
+                    AddText("Are you heading back to the Guild Area? It is free for our members, and 5,000 ");
+                    AddText("Silver for others.");
+                    AddOption("Please teleport me there.", 1);
                     AddOption("Just passing by.", 255);
                     break;
                 case 1:
-                    _client.ChangeMap(1038, 350, 339);
+                    if (_client.Money >= 5000)
+                    { _client.ChangeMap(1038, 350, 339); _client.Money -= 5000; Redux.Managers.GuildWar.CurrentWinner.Money += 5000; }
+                    else
+                    {
+                        AddText("Sorry, you do not have enough.");
+                        AddOption("I see.", 255);
+                    }
                     break;
             }
             AddFinish();

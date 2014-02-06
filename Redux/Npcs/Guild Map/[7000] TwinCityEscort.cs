@@ -13,9 +13,8 @@ using Redux.Packets.Game;
 namespace Redux.Npcs
 {
     /// <summary>
-    /// Handles NPC usage for [7000] GuildGateKeeper
-    /// Written by Aceking 9-24-13
-    /// </summary>
+    /// Handles NPC usage for [7000] TwinCityEscort
+    /// 
     public class NPC_7000 : INpc
     {
 
@@ -33,12 +32,12 @@ namespace Redux.Npcs
             switch (_linkback)
             {
                 case 0:
-                    AddText("Are you going to leave here?");
+                    AddText("Do you want to go back to Twin City?");
                     AddOption("Yes.", 1);
                     AddOption("No. Wait a moment", 255);
                     break;
                 case 1:
-                    _client.ChangeMap(1002);
+                    _client.ChangeMap(1002, 356, 336);
                     break;
             }
             AddFinish();

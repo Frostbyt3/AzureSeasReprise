@@ -9,7 +9,7 @@ namespace Redux.Npcs
 {
 
     /// <summary>
-    /// Handles NPC usage for [4450] Market Controller
+    /// Handles NPC usage for [4450] MarketEscort
     /// </summary>
     public class NPC_4450 : INpc
     {
@@ -33,7 +33,7 @@ namespace Redux.Npcs
                     AddOption("No. I shall stay here.", 255);
                     break;
                 case 1:
-                    _client.ChangeMap(1002, 429, 378);
+                    _client.ChangeMap(1002);
                     break;
             }
             AddFinish();

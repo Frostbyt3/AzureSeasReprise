@@ -8,7 +8,7 @@ using Redux.Packets.Game;
 namespace Redux.Npcs
 {
     /// <summary>
-    /// Handles NPC usage for [10002] Barber
+    /// Handles NPC usage for [10002] HairStylist
     /// </summary>
     public class NPC_10002 : INpc
     {

@@ -11,7 +11,7 @@ namespace Redux.Npcs
     public class NPC_10010 : INpc
     {
         /// <summary>
-        /// Handles NPC usage for [10010] VillageGateman
+        /// Handles NPC usage for [10010] VillageGuide
         /// </summary>
         public NPC_10010(Game_Server.Player _client)
             : base(_client)
@@ -33,7 +33,7 @@ namespace Redux.Npcs
                         AddOption("I'm not ready, yet", 255);
                         break;
                 case 1:
-                    _client.ChangeMap(1002, 420, 360);
+                    _client.ChangeMap(1002, 438, 377);
                     if (_client.ProfessionType == Enum.ProfessionType.Taoist)
                     {
                         AddText("Welcome to Twin City! I have taught you to cast the spells Thunder and Cure to aid your journey ");

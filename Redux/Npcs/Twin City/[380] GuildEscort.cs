@@ -13,15 +13,15 @@ using Redux.Packets.Game;
 namespace Redux.Npcs
 {
     /// <summary>
-    /// Handles NPC usage for [102097] Guild Conductress 3
+    /// Handles NPC usage for [380] GuildEscort
     /// </summary>
-    public class NPC_102097 : INpc
+    public class NPC_380 : INpc
     {
 
-        public NPC_102097(Game_Server.Player _client)
+        public NPC_380(Game_Server.Player _client)
             :base (_client)
     	{
-            ID = 102097;	
+    		ID = 380;	
 			Face = 123;    
     	}
 
@@ -37,7 +37,7 @@ namespace Redux.Npcs
                     AddOption("Just passing by.", 255);
                     break;
                 case 1:
-                    _client.ChangeMap(1038, 350, 339);
+                    _client.ChangeMap(1038, 351, 341);
                     break;
             }
             AddFinish();

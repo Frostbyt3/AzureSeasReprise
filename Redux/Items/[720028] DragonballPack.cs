@@ -1,18 +1,13 @@
-﻿/*
- * User: cookc
- * Date: 7/20/2013
- * Time: 11:42 AM
- */
-using System;
+﻿using System;
 using Redux.Game_Server;
 using Redux.Structures;
 
 namespace Redux.Items
 {
 	/// <summary>
-	/// Handles item usage for [720027] MeteorScroll
+	/// Handles item usage for [720028] DragonballPack
 	/// </summary>
-	public class Item_720027:IItem
+	public class Item_720028:IItem
 	{		
         public override void Run(Player _client, ConquerItem _item) 
         {
@@ -20,7 +15,7 @@ namespace Redux.Items
         		return;
             _client.DeleteItem(_item);
         	for(var i = 0; i < 10; i++)
-        		_client.CreateItem(1088001);
+        		_client.CreateItem(1088000);
 		}
 	}
 }
