@@ -38,6 +38,8 @@ namespace Redux.Managers
                 case 114:
                 case 117:
                 case 118:
+                case 141:
+                case 142:
                     loc = 1;
                     break;
                 case 120:
@@ -49,6 +51,7 @@ namespace Redux.Managers
                 case 132:
                 case 133:
                 case 134:
+                case 137:
                     loc = 3;
                     break;
                 case 410:

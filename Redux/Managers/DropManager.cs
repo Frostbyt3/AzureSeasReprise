@@ -7,7 +7,7 @@ namespace Redux.Managers
 {
     public static class DropManager
     {
-        public static ushort[] HelmetTypes = new ushort[] { 111, 113, 114, 117, 118 };
+        public static ushort[] HelmetTypes = new ushort[] { 111, 113, 114, 117, 118, 141, 142 };
         public static ushort[] NecklaceTypes = new ushort[] { 120, 121 };
         public static ushort[] RingTypes = new ushort[] { 150, 151, 152 };
         public static ushort[] OneHandWeaponTypes = new ushort[] { 410, 420, 421, 430, 440, 450, 460, 480, 490 };

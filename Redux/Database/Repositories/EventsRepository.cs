@@ -34,15 +34,6 @@ namespace Redux.Database.Repositories
                     .List<DbGuildAttr>();
             }
         }
-        public void SetGuildWarWinner()
-        {
-            using (var session = NHibernateHelper.OpenSession())
-            {
-                var t = session.CreateSQLQuery("UPDATE events SET GuildWarWinner=" + Managers.GuildWar.CurrentWinner.Name + " WHERE ID=" + Managers.GuildWar.CurrentWinner.Id);
-
-                t.ExecuteUpdate();
-            }
-        }
     }
 }
 

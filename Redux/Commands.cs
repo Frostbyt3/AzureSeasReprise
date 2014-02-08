@@ -4,11 +4,13 @@ using Redux.Enum;
 using Redux.Game_Server;
 using Redux.Packets.Game;
 using Redux.Structures;
+using System.Data.SqlClient;
 
 namespace Redux
 {
     public static class Commands
     {
+        public static string playername = null;
         private delegate void IngameCommandHandler(Player client, string[] command);
         private static readonly Dictionary<string, IngameCommandHandler> _handlers;
         public static void Handle(Player client, string[] command)
@@ -19,7 +21,7 @@ namespace Redux
                 client.Send(new TalkPacket(ChatType.Talk, "Error: No such command [" + command[0] + "]"));
         }
         static Commands()
-        {    
+        {
             _handlers = new Dictionary<string, IngameCommandHandler>
                 {
                 {"quit", Process_Exit},
@@ -142,28 +144,26 @@ namespace Redux
 
                 Database.ServerDatabase.Context.Characters.ResetOnlineCharacters();
                 foreach (Player user in Redux.Managers.PlayerManager.Players.Values)
-                        {
-                            user.Save();//saves and removes from maps
-                            //any other code such as printing out that server is shutting down and then delaying before closing server down fully?
-                        }
-                        Console.WriteLine("Saved " + Redux.Managers.PlayerManager.Players.Count + " characters successfully.");
-                        Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "The server is shutting down for maintenance. See you soon!", ChatColour.Red));
-                        System.Threading.Thread.Sleep(5000);
-                        System.Environment.Exit(-1);
+                {
+                    user.Save();//saves and removes from maps
+                    //any other code such as printing out that server is shutting down and then delaying before closing server down fully?
+                }
+                Console.WriteLine("Saved " + Redux.Managers.PlayerManager.Players.Count + " characters successfully.");
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "The server is shutting down for maintenance. See you soon!", ChatColour.Red));
+                System.Threading.Thread.Sleep(5000);
+                System.Environment.Exit(-1);
             }
         }
         private static void Process_Players_Online(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.PM)
                 return;
-            var ponline = 0;
-            
+            var ponline = Managers.PlayerManager.Players.Count;
             foreach (Player p in Redux.Managers.PlayerManager.Players.Values)
-            ponline++;
-
-            //string[] names = new string[ponline] {p};
-            Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.System, "Players Online: " + ponline, ChatColour.Orange));
-
+            {
+                playername = p.Name + ","; 
+            }
+            Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.System, "Players Online: " + ponline + "Who's Online: " + playername, ChatColour.Orange));
         }
         private static void Process_Exit(Player client, string[] command)
         {
@@ -183,10 +183,10 @@ namespace Redux
             if (client.Account.Permission < PlayerPermission.GM)
                 return;
             uint uid;
-            if(command.Length < 2 || !uint.TryParse(command[1], out uid))
-            {            	
-            	client.SendMessage("Error: Format should be /item {id}");
-            	return;
+            if (command.Length < 2 || !uint.TryParse(command[1], out uid))
+            {
+                client.SendMessage("Error: Format should be /item {id}");
+                return;
             }
             var info = Database.ServerDatabase.Context.ItemInformation.GetById(uid);
             if (info == null)
@@ -202,8 +202,8 @@ namespace Redux
                 else
                     client.SendMessage("Error: Format should be /item {id} {+}");
 
-            if(command.Length > 3)
-                if(byte.TryParse(command[3], out val))
+            if (command.Length > 3)
+                if (byte.TryParse(command[3], out val))
                     item.Bless = val;
                 else
                     client.SendMessage("Error: Format should be /item {id} {+} {-}");
@@ -225,12 +225,12 @@ namespace Redux
                     item.Gem2 = val;
                 else
                     client.SendMessage("Error: Format should be /item {id} {+} {-} {hp} {gem1} {gem2}");
-            
+
             item.SetOwner(client);
-            if(client.AddItem(item))
-            	client.Send(ItemInformationPacket.Create(item));
+            if (client.AddItem(item))
+                client.Send(ItemInformationPacket.Create(item));
             else
-            	client.SendMessage("Error adding item");             
+                client.SendMessage("Error adding item");
         }
 
         private static void Process_Level(Player client, string[] command)
@@ -242,11 +242,12 @@ namespace Redux
             {
                 Console.WriteLine(client.Name + " has changed their level to " + val);
                 client.SetLevel(val);
-                client.Experience = 0; }
+                client.Experience = 0;
+            }
             else
                 client.SendMessage("Error: Format should be /level {#}");
         }
-        
+
         private static void Process_Money(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.GM)
@@ -355,7 +356,7 @@ namespace Redux
                 return;
             byte val;
             int duration = 2;
-            if(command.Length > 2)
+            if (command.Length > 2)
                 int.TryParse(command[2], out duration);
             if (byte.TryParse(command[1], out val))
             {
@@ -529,18 +530,17 @@ namespace Redux
         {
             if (client.Account.Permission < PlayerPermission.GM)
                 return;
-            if(command.Length < 3)
+            if (command.Length < 3)
                 return;
             uint uid, id;
-            if(uint.TryParse(command[1], out uid) && 
+            if (uint.TryParse(command[1], out uid) &&
                 uint.TryParse(command[2], out id))
             {
-                var gi = new GroundItemPacket
-                    {Action = GroundItemAction.Create, UID = uid, ID = id, X = client.X, Y = client.Y};
+                var gi = new GroundItemPacket { Action = GroundItemAction.Create, UID = uid, ID = id, X = client.X, Y = client.Y };
                 client.Send(gi);
 
             }
-                
+
         }
         private static void Process_Delete_Npc(Player client, string[] command)
         {
@@ -552,7 +552,7 @@ namespace Redux
                 var npc = Database.ServerDatabase.Context.Npcs.GetById(id);
                 if (npc != null)
                     Database.ServerDatabase.Context.Npcs.Remove(npc);
-                foreach(var map in Managers.MapManager.ActiveMaps.Values)
+                foreach (var map in Managers.MapManager.ActiveMaps.Values)
                     if (map.Objects.ContainsKey(npc.UID))
                     {
                         Space.ILocatableObject x;
@@ -574,7 +574,7 @@ namespace Redux
                 var spawnPacket = SpawnNpcPacket.Create(id, mesh, client.Location);
                 uint type;
                 if (command.Length > 3 && uint.TryParse(command[3], out type))
-                    spawnPacket.Type = (NpcType)type;                
+                    spawnPacket.Type = (NpcType)type;
                 client.Send(spawnPacket);
             }
             else
@@ -794,7 +794,7 @@ namespace Redux
             }
             catch (Exception p) { Console.WriteLine(p); }
         }
-        
+
 
     }
 }

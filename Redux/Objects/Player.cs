@@ -919,6 +919,34 @@ namespace Redux.Game_Server
 
         #endregion
 
+        #region Reload Arrows
+        /*public void ReloadArrows()
+        {
+            var toReload = 1050002;
+            if (Equipment.Owner.HasItem(1050002))
+            {
+                Equipment.Owner.Equipment.EquipItem(toReload, ItemLocation.WeaponL, true);
+            }
+            toReload = FindItemIDInInventory(1050001);
+            if (toReload != null)
+            {
+                Equipment.EquipItem(toReload, ItemLocation.WeaponL);
+                return;
+            }
+            toReload = FindItemIDInInventory(1050000);
+            if (toReload != null)
+            {
+                Equipment.EquipItem(toReload, ItemLocation.WeaponL);
+                return;
+            }
+        }
+        public Structures.ConquerItem FindItemIDInInventory(uint ID)
+        {
+            var pos = from I in Inventory.Values where I.StaticID == ID orderby I.CurrentDura descending select I;
+            return pos.FirstOrDefault();
+        }*/
+        #endregion
+
         #region Delayed Action Timeout
         public void On_Player_Timer()
         {

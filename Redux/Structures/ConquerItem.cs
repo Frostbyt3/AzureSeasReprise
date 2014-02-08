@@ -126,7 +126,7 @@ namespace Redux.Structures
         }
 
         static List<ushort> equipmentTypes = new List<ushort>() { 111, 113, 114, 117, 118, 120, 121, 150, 151, 152, 410, 420, 421, 430, 440, 450, 460, 
-            480, 490, 500, 510, 530, 540, 560, 561, 580, 130, 131, 132, 133, 134, 160, 900 };
+            480, 490, 500, 510, 530, 540, 560, 561, 580, 130, 131, 132, 133, 134, 137, 141, 142, 160, 900 }; // Added 137 for ArmorGarments (GMRobe); 141 Headband; 142 Plume
         public uint GroundID
         {
             get
@@ -164,8 +164,8 @@ namespace Redux.Structures
             get{return equipmentTypes.Contains(this.EquipmentType);}
         }
 
-        public bool IsHelmet { get { return EquipmentSort == 1 || EquipmentSort == 4; } }
-        public bool IsArmor { get { return EquipmentSort == 3; } }
+        public bool IsHelmet { get { return EquipmentType == 111 || EquipmentType == 113 || EquipmentType == 114 || EquipmentType == 117 || EquipmentType == 118 || EquipmentType == 141 || EquipmentType == 142; } }
+        public bool IsArmor { get { return EquipmentSort == 3 || EquipmentType == 137; } }
         public bool IsShield { get { return EquipmentType == 900; } }
 
         #region Calculate Next Item ID (Dragon Ball Upgrade)
@@ -312,6 +312,8 @@ namespace Redux.Structures
                 case 131:
                 case 133:
                 case 134:
+                case 141:
+                case 142:
                     newLvl = 0;
                     break;
                 case 150:

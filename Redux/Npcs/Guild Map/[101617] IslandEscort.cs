@@ -39,7 +39,15 @@ namespace Redux.Npcs
                     break;
                 case 1:
                     if (_client.Money >= 5000)
-                    { _client.ChangeMap(1015, 716, 573); _client.Money -= 5000; Redux.Managers.GuildWar.CurrentWinner.Money += 5000; }
+                    {
+                        _client.ChangeMap(1015, 716, 573);
+                        uint warwinner = Redux.Database.ServerDatabase.Context.Events.GetWinner().WinnerID;
+                        if (_client.GuildId != Redux.Managers.GuildManager.GetGuild(warwinner).Id || _client.Guild == null)
+                        {
+                            _client.Money -= 5000;
+                            Redux.Managers.GuildManager.GetGuild(warwinner).Money += 5000;
+                        }
+                    }
                     else
                     {
                         AddText("Sorry, you do not have enough.");
