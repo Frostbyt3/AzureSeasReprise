@@ -40,6 +40,9 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>ServerIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ManagedOpenSsl, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -269,10 +272,10 @@
     <Compile Include="Network\NetworkClientEvents.cs" />
     <Compile Include="Network\NetworkServer.cs" />
     <Compile Include="Npcs\Ape Mountain\[47] Warehouse.cs" />
-    <Compile Include="Npcs\Ape Mountain\[10053] Conductress.cs" />
+    <Compile Include="Npcs\Ape Mountain\[10053] Guide.cs" />
     <Compile Include="Npcs\Ape Mountain\[102097] CanyonEscort.cs" />
     <Compile Include="Npcs\Bird Island\[45] Warehouse.cs" />
-    <Compile Include="Npcs\Bird Island\[10056] Conductress.cs" />
+    <Compile Include="Npcs\Bird Island\[10056] Guide.cs" />
     <Compile Include="Npcs\Bird Island\[102093] IslandEscort.cs" />
     <Compile Include="Npcs\Birth Village\[10005] Weaponsmith.cs" />
     <Compile Include="Npcs\Birth Village\[10006] Warehouseman.cs" />
@@ -280,7 +283,7 @@
     <Compile Include="Npcs\Birth Village\[10008] Herbalist.cs" />
     <Compile Include="Npcs\Birth Village\[10010] VillageGuide.cs" />
     <Compile Include="Npcs\Desert City\[46] Warehouse.cs" />
-    <Compile Include="Npcs\Desert City\[10051] Conductress.cs" />
+    <Compile Include="Npcs\Desert City\[10051] Guide.cs" />
     <Compile Include="Npcs\Desert City\[102091] DesertEscort.cs" />
     <Compile Include="Npcs\Guild Map\[6010] Warden.cs" />
     <Compile Include="Npcs\Guild Map\[6702] RightGate.cs" />
@@ -293,17 +296,17 @@
     <Compile Include="Npcs\Market\[10065] Godly Artisan.cs" />
     <Compile Include="Npcs\Market\[35016] WuxingOven.cs" />
     <Compile Include="Npcs\Market\[3600] Alex - First Reborn.cs" />
-    <Compile Include="Npcs\Market\[4450] Market Controller.cs" />
+    <Compile Include="Npcs\Market\[4450] MarketEscort.cs" />
     <Compile Include="Npcs\Market\[44] Warehouse.cs" />
     <Compile Include="Npcs\Market\[7050] Compose Items.cs" />
     <Compile Include="Npcs\Phoenix Castle\[102063] ForestEscort.cs" />
     <Compile Include="Npcs\Phoenix Castle\[48] Warehouse.cs" />
-    <Compile Include="Npcs\Promotion Centre\[10000] Taoist Star.cs" />
+    <Compile Include="Npcs\Promotion Centre\[10000] TaoistMoon.cs" />
     <Compile Include="Npcs\Promotion Centre\[400] Archer God.cs" />
     <Compile Include="Npcs\Promotion Centre\[10001] Warrior God.cs" />
     <Compile Include="Npcs\Promotion Centre\[10022] Trojan Star.cs" />
     <Compile Include="Npcs\Twin City\[1337] AzureGuide.cs" />
-    <Compile Include="Npcs\Twin City\[10002] Barber.cs" />
+    <Compile Include="Npcs\Twin City\[10002] HairStylist.cs" />
     <Compile Include="Npcs\Twin City\[10003] GuildDirector.cs" />
     <Compile Include="Npcs\Twin City\[101617] Boxer.cs" />
     <Compile Include="Npcs\Twin City\[4293] Mine Admin.cs" />
@@ -313,7 +316,7 @@
     <Compile Include="Npcs\Twin City\[43] CaptainLi.cs" />
     <Compile Include="Npcs\Twin City\[600075] BoxerHuang.cs" />
     <Compile Include="Npcs\Twin City\[40] Warehouse.cs" />
-    <Compile Include="Npcs\Phoenix Castle\[2002] Conductress.cs" />
+    <Compile Include="Npcs\Phoenix Castle\[2002] Guide.cs" />
     <Compile Include="Npcs\INpc.cs" />
     <Compile Include="Npcs\Manager.cs" />
     <Compile Include="Npcs\Twin City\[601]OfflineTGAdmin.cs" />
@@ -474,6 +477,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Change Log.txt" />
+    <Content Include="ServerIcon.ico" />
     <EmbeddedResource Include="Database\Mappings\DbLevExp.hbm.xml" />
     <EmbeddedResource Include="Database\Mappings\DbbugReport.hbm.xml" />
     <Content Include="Database\Mappings\DbMineDrop.hbm.xml" />

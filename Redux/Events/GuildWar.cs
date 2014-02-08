@@ -55,7 +55,9 @@ namespace Redux.Managers
 
         public static void GuildWarEnd()
         {
-            PlayerManager.SendToServer(new Packets.Game.TalkPacket(ChatType.GM, CurrentWinner + " has emerged victorious in this week's Guild War! Congratulations!", ChatColour.Blue));
+            PlayerManager.SendToServer(new Packets.Game.TalkPacket(ChatType.GM, CurrentWinner.Name + " has emerged victorious in this week's Guild War! Congratulations!", ChatColour.Blue));
+            
+            
             Running = false;
 
             
@@ -77,6 +79,7 @@ namespace Redux.Managers
             {
                 if (CurrentWinner != null)
                     toUpdate.Name = CurrentWinner.Name;
+                //Redux.Database.ServerDatabase.Context.Events.SetGuildWarWinner();
                 toUpdate.Life = 20000000;
                 toUpdate.SendToScreen(Packets.Game.SpawnSob.Create(toUpdate), true);
             }
@@ -87,6 +90,7 @@ namespace Redux.Managers
         }
         public static void StartRound()
         {
+            GuildWar.Running = true;
             StartNewRound = false;
             LeftGateHp = 10000000;
             RightGateHp = 10000000;

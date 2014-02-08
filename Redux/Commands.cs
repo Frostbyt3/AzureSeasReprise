@@ -59,7 +59,74 @@ namespace Redux
                 {"ptele", Process_Goto_Player},
                 {"kick", Process_Kick_Player},
                 {"maint", Process_Server_Maint},
+                {"online", Process_Players_Online},
+                {"clearitems", Process_Clear_Inventory},
+                {"where", Process_Find_Player},
+                {"startwar", Process_Start_Guild_War},
+                {"endwar", Process_End_Guild_War},
             };
+        }
+        private static void Process_Start_Guild_War(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.GM)
+                return;
+            if (Redux.Managers.GuildWar.Running == false)
+            {
+                Redux.Managers.GuildWar.StartRound();
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination!", ChatColour.Blue));
+                /*System.Threading.Thread.Sleep(50);
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Pink));
+                System.Threading.Thread.Sleep(50);
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Blue));
+                System.Threading.Thread.Sleep(50);
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Pink));
+                System.Threading.Thread.Sleep(50);
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Blue));
+                System.Threading.Thread.Sleep(50);
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Pink));
+                System.Threading.Thread.Sleep(50);
+                 */
+            }
+        }
+        private static void Process_End_Guild_War(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.GM)
+                return;
+            if (Redux.Managers.GuildWar.Running == true)
+            {
+                Redux.Managers.GuildWar.GuildWarEnd();
+            }
+            else
+                client.SendSysMessage("Guild War is not currently running!");
+        }
+        private static void Process_Find_Player(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.PM)
+                return;
+            Player role = null;
+            foreach (Player r in Redux.Managers.PlayerManager.Players.Values)
+            {
+                if (r.Name.ToLower() == command[1].ToLower())
+                {
+                    role = r;
+                    Redux.Space.Point location = role.Map.Search(role.UID).Location;
+                    client.SendSysMessage(role.Name + " location: " + role.MapID);
+                    break;
+                }
+            }
+        }
+        private static void Process_Clear_Inventory(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.PM)
+                return;
+            List<Structures.ConquerItem> itemsToRemove = new List<Structures.ConquerItem>();
+            foreach (Structures.ConquerItem i in client.Inventory.Values)
+            {
+                itemsToRemove.Add(i);
+            }
+            foreach (Structures.ConquerItem i in itemsToRemove)
+                client.RemoveItem(i, true);
+            client.SendSysMessage("Your inventory has been cleared!");
         }
         private static void Process_Server_Maint(Player client, string[] command)
         {
@@ -84,6 +151,19 @@ namespace Redux
                         System.Threading.Thread.Sleep(5000);
                         System.Environment.Exit(-1);
             }
+        }
+        private static void Process_Players_Online(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.PM)
+                return;
+            var ponline = 0;
+            
+            foreach (Player p in Redux.Managers.PlayerManager.Players.Values)
+            ponline++;
+
+            //string[] names = new string[ponline] {p};
+            Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.System, "Players Online: " + ponline, ChatColour.Orange));
+
         }
         private static void Process_Exit(Player client, string[] command)
         {
@@ -442,15 +522,8 @@ namespace Redux
         {
             if (client.Account.Permission < PlayerPermission.GM || client.PK >= 100)
                 return;
-
-            byte xp;
-            if (command.Length > 1 && byte.TryParse(command[1], out xp))
-            {
-                client.Xp = xp;
-                Console.WriteLine(client.Name + " has used the XP command.");
-            }
-            else
-                client.SendMessage("Error: Format should be /xp {#}");
+            client.Xp = 100;
+            Console.WriteLine(client.Name + " has used the XP command.");
         }
         private static void Process_Drop(Player client, string[] command) //TODO: Why is this unused?
         {
