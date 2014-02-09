@@ -269,6 +269,19 @@ namespace Redux.Game_Server
                         }
                     }
                     break;
+                case ChatType.Ghost:
+                    Player speaker = PlayerManager.GetUser(packet.Speaker);
+                    if (speaker == null)
+                        break;
+
+                    foreach (var plyr in speaker.Map.QueryScreen<Player>(speaker))
+                    {
+                        if (plyr.UID == speaker.UID)
+                            continue;
+                        if (!plyr.Alive || (plyr.ProfessionType == ProfessionType.WaterTaoist && plyr.ProfessionLevel >= 2 && plyr.ProfessionLevel <= 5))
+                            plyr.Send(packet);
+                    }
+                    break;
             }
         }
         #endregion

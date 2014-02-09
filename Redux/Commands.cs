@@ -66,7 +66,55 @@ namespace Redux
                 {"where", Process_Find_Player},
                 {"startwar", Process_Start_Guild_War},
                 {"endwar", Process_End_Guild_War},
+                {"pmove", Process_Move_Player},
             };
+        }
+        private static void Process_Move_Player(Player client, string[] command)
+        {
+            if (client.Account.Permission < PlayerPermission.PM)
+                return;
+            Player role = null;
+            ushort rolemap, rolex, roley;
+            foreach (Player r in Redux.Managers.PlayerManager.Players.Values)
+            {
+                if (r.Name.ToLower() == command[1].ToLower())
+                {
+                    role = r;
+                    break;
+                }
+            }
+            if (role != null)
+            {
+                if (command.Length == 3 && ushort.TryParse(command[2], out rolemap))
+                {
+                    var m = Database.ServerDatabase.Context.Maps.GetById(rolemap);
+                    if (m != null)
+                    {
+                        role.ChangeMap(rolemap);
+                        role.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, client.Name + " has moved you to MapID: " + role.MapID + ".", ChatColour.Orange));
+                        client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have moved " + role.Name + " to Map ID: " + rolemap + ".", ChatColour.Orange));
+                        Console.WriteLine(client.Name + " has moved " + role.Name + " to Map ID: " + rolemap);
+                    }
+                    else
+                        client.SendMessage("Error: Unhandled map ID: " + rolemap);
+                }
+                if (command.Length == 5 && ushort.TryParse(command[2], out rolemap) && ushort.TryParse(command[3], out rolex) && ushort.TryParse(command[4], out roley))
+                {
+                    var m = Database.ServerDatabase.Context.Maps.GetById(rolemap);
+                    if (m != null)
+                    {
+                        role.ChangeMap(rolemap, rolex, roley);
+                        role.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, client.Name + " has moved you to MapID: " + role.MapID + " X: " + role.X + " Y: " + role.Y, ChatColour.Orange));
+                        client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have moved " + role.Name + " to Map ID: " + rolemap + " X: " + role.X + " Y: " + role.Y + ".", ChatColour.Orange));
+                        Console.WriteLine(client.Name + " has moved " + role.Name + " to " + rolemap + ": (" + rolex + ", " + roley + ")");
+                    }
+                    else
+                        client.SendMessage("Error: Unhandled map ID: " + rolemap);
+                }
+                
+                
+            }
+            
         }
         private static void Process_Start_Guild_War(Player client, string[] command)
         {
@@ -75,19 +123,20 @@ namespace Redux
             if (Redux.Managers.GuildWar.Running == false)
             {
                 Redux.Managers.GuildWar.StartRound();
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have started the Guild War.", ChatColour.Orange));
                 Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination!", ChatColour.Blue));
-                /*System.Threading.Thread.Sleep(50);
-                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Pink));
                 System.Threading.Thread.Sleep(50);
-                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Blue));
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination!", ChatColour.Pink));
                 System.Threading.Thread.Sleep(50);
-                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Pink));
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination!", ChatColour.Blue));
                 System.Threading.Thread.Sleep(50);
-                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Blue));
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination!", ChatColour.Pink));
                 System.Threading.Thread.Sleep(50);
-                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination of the Guild Pole!", ChatColour.Pink));
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination!", ChatColour.Blue));
                 System.Threading.Thread.Sleep(50);
-                 */
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination!", ChatColour.Pink));
+                System.Threading.Thread.Sleep(50);
+                Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.GM, "Guild War have begun! Form your teams and fight for domination!", ChatColour.Blue));
             }
         }
         private static void Process_End_Guild_War(Player client, string[] command)
@@ -97,6 +146,7 @@ namespace Redux
             if (Redux.Managers.GuildWar.Running == true)
             {
                 Redux.Managers.GuildWar.GuildWarEnd();
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have ended the Guild War.", ChatColour.Orange));
             }
             else
                 client.SendSysMessage("Guild War is not currently running!");
@@ -105,6 +155,11 @@ namespace Redux
         {
             if (client.Account.Permission < PlayerPermission.PM)
                 return;
+            if (command.Length < 2)
+            {
+                client.SendMessage("Error: Format should be /where PlayerName");
+                return;
+            }
             Player role = null;
             foreach (Player r in Redux.Managers.PlayerManager.Players.Values)
             {
@@ -112,7 +167,7 @@ namespace Redux
                 {
                     role = r;
                     Redux.Space.Point location = role.Map.Search(role.UID).Location;
-                    client.SendSysMessage(role.Name + " location: " + role.MapID);
+                    client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, role.Name + "'s current location is MapID: " + role.MapID + " X: " + role.X + " Y: " + role.Y, ChatColour.Orange));
                     break;
                 }
             }
@@ -128,7 +183,7 @@ namespace Redux
             }
             foreach (Structures.ConquerItem i in itemsToRemove)
                 client.RemoveItem(i, true);
-            client.SendSysMessage("Your inventory has been cleared!");
+            client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "Your inventory has been cleared!", ChatColour.Orange));
         }
         private static void Process_Server_Maint(Player client, string[] command)
         {
@@ -161,9 +216,10 @@ namespace Redux
             var ponline = Managers.PlayerManager.Players.Count;
             foreach (Player p in Redux.Managers.PlayerManager.Players.Values)
             {
-                playername = p.Name + ","; 
+                playername += p.Name + "  "; 
             }
-            Redux.Managers.PlayerManager.SendToServer(new Packets.Game.TalkPacket(Enum.ChatType.System, "Players Online: " + ponline + "Who's Online: " + playername, ChatColour.Orange));
+            client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "Players Online: " + ponline + " Who's Online: " + playername, ChatColour.Orange));
+            playername = null;
         }
         private static void Process_Exit(Player client, string[] command)
         {
@@ -177,6 +233,7 @@ namespace Redux
             Console.WriteLine(client.Name + " has fully healed theirself.");
             client.Life = client.CombatStats.MaxLife;
             client.Mana = client.CombatStats.MaxMana;
+            client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have healed your HP and Mana.", ChatColour.Orange));
         }
         private static void Process_Item(Player client, string[] command)
         {
@@ -232,7 +289,6 @@ namespace Redux
             else
                 client.SendMessage("Error adding item");
         }
-
         private static void Process_Level(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.GM)
@@ -243,11 +299,11 @@ namespace Redux
                 Console.WriteLine(client.Name + " has changed their level to " + val);
                 client.SetLevel(val);
                 client.Experience = 0;
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have changed your Level to " + val + ".", ChatColour.Orange));
             }
             else
                 client.SendMessage("Error: Format should be /level {#}");
         }
-
         private static void Process_Money(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.GM)
@@ -257,11 +313,11 @@ namespace Redux
             {
                 Console.WriteLine(client.Name + " has changed their Silvers amount to " + val);
                 client.Money = val;
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have changed your Silvers to " + val + ".", ChatColour.Orange));
             }
             else
                 client.SendMessage("Error: Format should be /money {#}");
         }
-
         private static void Process_CP(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.GM)
@@ -271,11 +327,11 @@ namespace Redux
             {
                 Console.WriteLine(client.Name + " has changed their CP amount to: " + val);
                 client.CP = val;
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have changed your CP to " + val + ".", ChatColour.Orange));
             }
             else
                 client.SendMessage("Error: Format should be /cp {#}");
         }
-
         private static void Process_Str(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.GM)
@@ -286,11 +342,11 @@ namespace Redux
                 Console.WriteLine(client.Name + " has changed their Strength to " + val);
                 client.Strength = val;
                 client.Recalculate();
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have changed your Strength to " + val + ".", ChatColour.Orange));
             }
             else
                 client.SendMessage("Error: Format should be /str {#}");
         }
-
         private static void Process_Vit(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.GM)
@@ -301,11 +357,11 @@ namespace Redux
                 Console.WriteLine(client.Name + " has changed their Vitality to " + val);
                 client.Vitality = val;
                 client.Recalculate();
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have changed your Vitality to " + val + ".", ChatColour.Orange));
             }
             else
                 client.SendMessage("Error: Format should be /vit {#}");
         }
-
         private static void Process_Agi(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.GM)
@@ -316,11 +372,11 @@ namespace Redux
                 Console.WriteLine(client.Name + " has changed their Agility to " + val);
                 client.Agility = val;
                 client.Recalculate();
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have changed your Agility to " + val + ".", ChatColour.Orange));
             }
             else
                 client.SendMessage("Error: Format should be /agi {#}");
         }
-
         private static void Process_Spi(Player client, string[] command)
         {
             if (client.Account.Permission < PlayerPermission.GM)
@@ -331,6 +387,7 @@ namespace Redux
                 Console.WriteLine(client.Name + " has changed their Spirit to " + val);
                 client.Spirit = val;
                 client.Recalculate();
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have changed your Spirit to " + val + ".", ChatColour.Orange));
             }
             else
                 client.SendMessage("Error: Format should be /spi {#}");
@@ -346,6 +403,7 @@ namespace Redux
                 client.Character.Profession = val;
                 client.Send(new UpdatePacket(client.UID, UpdateType.Profession, client.Character.Profession));
                 client.Recalculate();
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have changed your profession to # " + val + ".", ChatColour.Orange));
             }
             else
                 client.SendMessage("Error: Format should be /job {#}");
@@ -374,6 +432,7 @@ namespace Redux
             if (command.Length > 2 && ushort.TryParse(command[1], out id) && ushort.TryParse(command[2], out level))
             {
                 client.CombatManager.AddOrUpdateSkill(id, level);
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have changed or learned skill# " + id + " at/to level " + level + ".", ChatColour.Orange));
                 Console.WriteLine(client.Name + " has added or changed skill ID: " + id + " to level " + level);
             }
             else
@@ -387,6 +446,7 @@ namespace Redux
             if (command.Length > 2 && ushort.TryParse(command[1], out id) && ushort.TryParse(command[2], out level))
             {
                 client.CombatManager.AddOrUpdateProf(id, level);
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have added or changed proficency #" + id + " to level " + level + ".", ChatColour.Orange));
                 Console.WriteLine(client.Name + " has changed his proficiency of ID: " + id + " to level " + level);
             }
             else
@@ -408,6 +468,7 @@ namespace Redux
             else if (command.Length > 3 && ushort.TryParse(command[2], out x) && ushort.TryParse(command[3], out y) && ushort.TryParse(command[1], out id))
             {
                 client.ChangeMap(id, x, y);
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have moved to " + id + ": (" + x + ", " + y + ").", ChatColour.Orange));
                 Console.WriteLine(client.Name + " has teleported to Map ID: " + id + " X: " + x + " Y: " + y + ".");
             }
             else
@@ -417,7 +478,7 @@ namespace Redux
         {
             if (client.Account.Permission < PlayerPermission.PM)
                 return;
-            client.SendMessage("Current Map ID: " + client.MapID);
+            client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "Your current Map ID: " + client.MapID, ChatColour.Orange));
         }
         private static void Process_Call_Player(Player client, string[] command)
         {
@@ -435,6 +496,8 @@ namespace Redux
             if (role != null)
             {
                 role.ChangeMap(client.MapID, client.X, client.Y);
+                role.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, client.Name + " has moved you to his/her location.", ChatColour.Orange));
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have called " + role.Name + " to your location.", ChatColour.Orange));
                 Console.WriteLine(client.Name + " has recalled " + role.Name + " to their location.");
             }
         }
@@ -454,6 +517,7 @@ namespace Redux
             if (role != null)
             {
                 client.ChangeMap(role.MapID, role.X, role.Y);
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have moved to " + role.Name + "'s location.", ChatColour.Orange));
                 Console.WriteLine(client.Name + " has teleported to " + role.Name + ".");
             }
         }
@@ -473,6 +537,7 @@ namespace Redux
             if (role != null)
             {
                 role.Disconnect();
+                client.Send(new Packets.Game.TalkPacket(Enum.ChatType.Talk2, "You have disconnected " + role.Name + ".", ChatColour.Orange));
                 Console.WriteLine(client.Name + " has kicked " + role.Name + " from the server.");
             }
         }

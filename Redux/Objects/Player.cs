@@ -922,10 +922,9 @@ namespace Redux.Game_Server
         #region Reload Arrows
         /*public void ReloadArrows()
         {
-            var toReload = 1050002;
             if (Equipment.Owner.HasItem(1050002))
             {
-                Equipment.Owner.Equipment.EquipItem(toReload, ItemLocation.WeaponL, true);
+                ItemAction.EquipItem: client.HandleItemEquipPacket(packet); break;
             }
             toReload = FindItemIDInInventory(1050001);
             if (toReload != null)

@@ -114,7 +114,6 @@ namespace Redux.Game_Server
                 dmg = 1;
             if (_canDodge && !Common.PercentSuccess(70 - _target.CombatStats.Dodge + CombatStats.Accuracy))
                 dmg = 0;
-
             return (uint)dmg;
         }
 
