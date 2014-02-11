@@ -4,7 +4,6 @@ using Redux.Enum;
 using Redux.Game_Server;
 using Redux.Packets.Game;
 using Redux.Structures;
-using System.Data.SqlClient;
 
 namespace Redux
 {
@@ -601,7 +600,8 @@ namespace Redux
             if (uint.TryParse(command[1], out uid) &&
                 uint.TryParse(command[2], out id))
             {
-                var gi = new GroundItemPacket { Action = GroundItemAction.Create, UID = uid, ID = id, X = client.X, Y = client.Y };
+                var gi = new GroundItemPacket
+                    {Action = GroundItemAction.Create, UID = uid, ID = id, X = client.X, Y = client.Y};
                 client.Send(gi);
 
             }

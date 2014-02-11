@@ -120,6 +120,7 @@ namespace Redux.Managers
                 case InteractAction.Attack:
                     ProcessAttack(_packet);
                     break;
+                
                 default:
                     Console.WriteLine("Unhandled interaction type {0} from {1}", owner.Name, _packet.Action);
                     break;
@@ -348,16 +349,39 @@ namespace Redux.Managers
                 AbortAttack();
             else
             {
+                uint skillexp = 0;
                 packet.Data = target.UID;
                 packet.AddTarget(target.UID, (uint)skill.Power);
+
+                uint diff = target.MaximumLife - target.Life;
+                skillexp += (uint)((Math.Min((double)diff / skill.Power, 1)) * (double)skill.Power);
                 target.Life += (ushort)skill.Power;
-                if (skill.Multi && owner != target)
+                if (skill.Multi && owner is Player && (owner as Player).Team != null)
                 {
-                    packet.AddTarget(owner.UID, (uint)skill.Power);
-                    owner.Life += (ushort)skill.Power;
-                    if (owner is Player)
-                        AddSkillExperience(skill.ID, (ulong)skill.Power);
+                    foreach (var member in (owner as Player).Team.Members)
+                    {
+                        if ((Calculations.InScreen(owner.X, owner.Y, member.X, member.Y)) && member.UID != target.UID)
+                        {
+                            packet.AddTarget(member.UID, (uint)skill.Power);
+                            diff = member.MaximumLife - member.Life;
+                            skillexp += (uint)(Math.Min((double)diff / skill.Power, 1) * (double)skill.Power);
+
+                            member.Life += (ushort)skill.Power;
+                        }
+
+                    }
+                    if ((owner as Player).Team.Leader.UID != target.UID)
+                        if ((owner as Player).Team.Leader.UID == owner.UID || (Calculations.InScreen(owner.X, owner.Y, (owner as Player).Team.Leader.X, (owner as Player).Team.Leader.Y)))
+                        {
+                            packet.AddTarget((owner as Player).Team.Leader.UID, (uint)skill.Power);
+                            diff = (owner as Player).Team.Leader.MaximumLife - (owner as Player).Team.Leader.Life;
+                            skillexp += (uint)(Math.Min((double)diff / skill.Power, 1) * (double)skill.Power);
+
+                            (owner as Player).Team.Leader.Life += (ushort)skill.Power;
+                        }
                 }
+                if (owner is Player)
+                    AddSkillExperience(skill.ID, (ulong)skillexp);
             }
         }
         #endregion
@@ -494,7 +518,7 @@ namespace Redux.Managers
             packet.DataHigh = (ushort)location.Y;
             ulong expGain = 0;
             foreach (var t in owner.Map.QueryScreen<Entity>(owner))
-                if (IsInArc(owner.Location, location, t.Location, skill.Distance))
+                if (IsInArc(owner.Location, location, t.Location, skill.Range))
                     if (IsValidTarget(t))
                     {
                         uint dmg;
@@ -587,6 +611,7 @@ namespace Redux.Managers
             pet.Y = owner.Y;
             pet.Map = owner.Map;
             pet.LastMove = Common.Clock;
+            pet.SpawnPacket.Lookface = 379;//179 or 279
             owner.Map.Insert(pet);
             owner.UpdateSurroundings();
             owner.SendToScreen(pet.SpawnPacket);
@@ -620,6 +645,7 @@ namespace Redux.Managers
                     DealSkillDamage();
                     break;
                 // somehow it is being called twice therefore using a break
+                case SkillSort.HealTarget:
                 case SkillSort.CallPet:
                     break;
                 default:
@@ -873,17 +899,13 @@ namespace Redux.Managers
             try
             {
                 var eq = owner.Equipment.GetItemBySlot(ItemLocation.WeaponR);
-                if (eq != null && Common.WeaponSkills.ContainsKey(eq.EquipmentType) && skills.ContainsKey(Common.WeaponSkills[eq.EquipmentType]))
-                {
-                    if (Common.PercentSuccess(skills[Common.WeaponSkills[eq.EquipmentType]].Info.Percent))
-                        skill = skills[Common.WeaponSkills[eq.EquipmentType]].Info;
-                }
+                if (eq != null && Common.WeaponSkills.ContainsKey(eq.EquipmentType) && skills.ContainsKey(Common.WeaponSkills[eq.EquipmentType]) && Common.PercentSuccess(skills[Common.WeaponSkills[eq.EquipmentType]].Info.Percent))
+                    skill = skills[Common.WeaponSkills[eq.EquipmentType]].Info;
                 else
                 {
                     eq = owner.Equipment.GetItemBySlot(ItemLocation.WeaponL);
-                    if (eq != null && Common.WeaponSkills.ContainsKey(eq.EquipmentType) && skills.ContainsKey(Common.WeaponSkills[eq.EquipmentType]))
-                        if (Common.PercentSuccess(skills[Common.WeaponSkills[eq.EquipmentType]].Info.Percent))
-                            skill = skills[Common.WeaponSkills[eq.EquipmentType]].Info;
+                    if (eq != null && Common.WeaponSkills.ContainsKey(eq.EquipmentType) && skills.ContainsKey(Common.WeaponSkills[eq.EquipmentType]) && Common.PercentSuccess(skills[Common.WeaponSkills[eq.EquipmentType]].Info.Percent))
+                        skill = skills[Common.WeaponSkills[eq.EquipmentType]].Info;
                 }
             }
             catch (Exception p) { Console.WriteLine(p); }

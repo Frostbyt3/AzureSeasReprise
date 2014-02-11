@@ -131,7 +131,10 @@ namespace Redux.Structures
         {
             get
             {
-                return equipmentTypes.Contains(EquipmentType) ? (staticID / 10 * 10 + 5) : staticID;
+                if (BaseItem.LevelReq == 1)
+                    return staticID;
+                else
+                    return equipmentTypes.Contains(EquipmentType) ? (staticID / 10 * 10 + 5) : staticID;
             }
         }
 

@@ -18,6 +18,7 @@
         ChangePKMode = 96,
         ConfirmGuild = 97,
         Mine = 99,
+        LeaderLocation = 101,
         InvisibleEntity = 102,
         ScreenColor = 104,
         TeamateLoc = 106,

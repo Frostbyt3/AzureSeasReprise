@@ -167,6 +167,9 @@
     <Compile Include="Enum\ChatType.cs" />
     <Compile Include="Enum\ClientStatus.cs" />
     <Compile Include="Enum\ApplyType.cs" />
+    <Compile Include="Enum\RebornItemEffect.cs" />
+    <Compile Include="Enum\MessageBoardAction.cs" />
+    <Compile Include="Enum\MessageBoardChannel.cs" />
     <Compile Include="Enum\ReportStatus.cs" />
     <Compile Include="Enum\ItemFlags.cs" />
     <Compile Include="Enum\TradeType.cs" />
@@ -254,6 +257,7 @@
     <Compile Include="Items\[720027] MeteorPack.cs" />
     <Compile Include="Items\Manager.cs" />
     <Compile Include="Managers\AssociateManager.cs" />
+    <Compile Include="Managers\MessageBoardManager.cs" />
     <Compile Include="Managers\NobilityManager.cs" />
     <Compile Include="Managers\GuildManager.cs" />
     <Compile Include="Managers\PetManager.cs" />
@@ -330,6 +334,7 @@
     <Compile Include="Objects\Monster.cs" />
     <Compile Include="Objects\Npc.cs" />
     <Compile Include="Objects\Player.cs" />
+    <Compile Include="Packets\Game\[1111] MessageBoard.cs" />
     <Compile Include="Packets\Game\[1024] AssignAttributes.cs" />
     <Compile Include="Packets\Game\[1108]VendorItem.cs" />
     <Compile Include="Packets\Game\[1056]Trade.cs" />

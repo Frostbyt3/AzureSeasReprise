@@ -56,7 +56,7 @@ namespace Redux.Managers
         public static void GuildWarEnd()
         {
             PlayerManager.SendToServer(new Packets.Game.TalkPacket(ChatType.GM, CurrentWinner.Name + " has emerged victorious in this week's Guild War! Congratulations!", ChatColour.Blue));
-            Redux.Managers.GuildWar.SetGuildWarWinner();
+            
             Running = false;
 
             
@@ -87,18 +87,9 @@ namespace Redux.Managers
             GuildScores.Clear();
             
         }
-        public static void SetGuildWarWinner()
-        {
-            using (var session = Redux.Database.Repositories.NHibernateHelper.OpenSession())
-            {
-                var t = session.CreateSQLQuery("UPDATE events SET GuildWarWinner=" + Managers.GuildWar.CurrentWinner.Name + " WHERE ID=" + Managers.GuildWar.CurrentWinner.Id);
-
-                t.ExecuteUpdate();
-            }
-        }
+        
         public static void StartRound()
         {
-            GuildWar.Running = true;
             StartNewRound = false;
             LeftGateHp = 10000000;
             RightGateHp = 10000000;

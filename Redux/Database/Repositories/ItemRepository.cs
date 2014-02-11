@@ -40,10 +40,13 @@ namespace Redux.Database.Repositories
             {
                 using (var session = NHibernateHelper.OpenSession())
                 {
-                    item = session
+                    var list = session
                         .CreateCriteria<DbItem>()
                         .AddOrder(new Order("UniqueID", false))
-                        .List<DbItem>()[0].UniqueID; 
+                        .List<DbItem>();
+                    if (list.Count > 0) 
+                        item = list[0].UniqueID; 
+
                 }
             }
             catch (Exception e) { Console.WriteLine("Could not initialize item generator seed. " + e); }

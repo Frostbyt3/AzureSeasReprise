@@ -141,6 +141,7 @@ namespace Redux.Game_Server
                 case Constants.MSG_TRADE: Process_Trade(client, ptr); break;
                 case Constants.MSG_OFFLINETG: Process_OfflineTG(client, ptr); break;
                 case Constants.MSG_BROADCAST: Process_Broadcast(client, ptr); break;
+                case Constants.MSG_MESSAGE_BOARD: Process_MessageBoard(client, ptr); break;
 
                 default: Console.WriteLine("Unknown packet type {0} from {1} ", type, client.Name == null ? "NO NAME" : client.Name); break;
             }
@@ -212,10 +213,10 @@ namespace Redux.Game_Server
                         var target = Managers.PlayerManager.GetUser(packet.Hearer);
                         if (target != null)
                         {
-                                Database.ServerDatabase.Context.ChatLogs.Add(new DbChatLog(packet));
-                                packet.SpeakerLookface = client.Lookface;
-                                packet.HearerLookface = target.Lookface;
-                                target.Send(packet);
+                            Database.ServerDatabase.Context.ChatLogs.Add(new DbChatLog(packet));
+                            packet.SpeakerLookface = client.Lookface;
+                            packet.HearerLookface = target.Lookface;
+                            target.Send(packet);
                         }
                         else
                         {
@@ -225,8 +226,26 @@ namespace Redux.Game_Server
                         break;
                     }
                 case ChatType.Friend:
-                        foreach (var friend in client.AssociateManager.Friends.Values)
+                    foreach (var friend in client.AssociateManager.Friends.Values)
                         friend.Send(packet);
+                    break;
+
+                case ChatType.Syndicate:
+                    if (client.Guild != null)
+                        foreach (Player p in client.Guild.Members())
+                            p.Send(packet);
+                    break;
+
+                case ChatType.Team:
+                    if (client.Team != null)
+                    {
+                        foreach (Player p in client.Team.Members)
+                            if (p != client)
+                                p.Send(packet);
+                        if (client.Team.Leader != client)
+                            client.Team.Leader.Send(packet);
+                    }
+
                     break;
 
                 case ChatType.SynAnnounce:
@@ -258,17 +277,7 @@ namespace Redux.Game_Server
                         client.SendToScreen(packet);
                     }
                     break;
-                case ChatType.Syndicate:
-                    {
-                        var guildId = client.GuildId;
-                        var Guild = GuildManager.GetGuild(guildId);
-                        if (Guild != null)
-                        {
-                            foreach (Player p in client.Guild.Members())
-                                p.Send(packet);
-                        }
-                    }
-                    break;
+                
                 case ChatType.Ghost:
                     Player speaker = PlayerManager.GetUser(packet.Speaker);
                     if (speaker == null)
@@ -281,6 +290,19 @@ namespace Redux.Game_Server
                         if (!plyr.Alive || (plyr.ProfessionType == ProfessionType.WaterTaoist && plyr.ProfessionLevel >= 2 && plyr.ProfessionLevel <= 5))
                             plyr.Send(packet);
                     }
+                    break;
+                //Each time someone writes to messageboard. A talk packet is sent with the chat type of the message board channel.
+                //This checks to see if a message already exists and deletes it if it does. Then adds the message.
+                //Written by Aceking 2-10-2014
+                case ChatType.MsgBoardTrade:
+                case ChatType.MsgBoardFriend:
+                case ChatType.MsgBoardTeam:
+                case ChatType.MsgBoardSyndicate:
+                case ChatType.MsgBoardOther:
+                    var msg = MessageBoardManager.FindMessage(packet.Speaker, (uint)packet.Type);
+                    if (msg.Author != null)
+                        MessageBoardManager.Delete(msg, (uint)packet.Type);
+                    MessageBoardManager.Add(packet.Speaker, packet.Words, DateTime.Now.ToString("yyyyMMddHHmmss"), (uint)packet.Type);
                     break;
             }
         }
@@ -599,15 +621,15 @@ namespace Redux.Game_Server
                 #region Teammember Map Location
                 case DataAction.TeamateLoc:
 
-                    if (client.UID != packet.UID)
-                        return;
                     if (client.Team == null)
                         return;
                     Player Player = PlayerManager.GetUser(packet.UID);
-                    //Player.Send(Packets.Game.SpawnEntityPacket.Create(Player, Player.Map, DataAction.TeamateLoc));
-                    packet.Data1 = Player.MapID;
-                    packet.Data2 = Player.X;
-                    packet.Data3 = Player.Y;
+                    if (Player == null || client.Map.DynamicID != Player.Map.DynamicID)
+                        return;
+                    packet.Data1 = 0;
+                    packet.Data2Low = Player.X;
+                    packet.Data2High = Player.Y;
+                    client.Send(packet);
                     break;
                 #endregion
                 #region Create Booth
@@ -2165,6 +2187,59 @@ namespace Redux.Game_Server
                     break;
 
             }
+        }
+        #endregion
+
+        #region MessageBoard
+        /// <summary>
+        /// Processes all packets for the Message Board
+        /// Written by Aceking 2/10/2014
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="packet"></param>
+        public static void Process_MessageBoard(Player client, MessageBoard packet)
+        {
+            switch (packet.Action)
+            {
+                case MessageBoardAction.GetList:
+                    {
+                        //Gets the current board
+                        var Board = MessageBoardManager.GetList(packet.BoardID, packet.Index);
+                        List<MessageBoardMessage> List = new List<MessageBoardMessage>();
+                        //Loops through to make sure the message is not too long. 
+                        foreach (var entry in Board)
+                        {
+                            var new_entry = entry;
+                            //Checks if the message is too long
+                            if (entry.Message.Length > 44)
+                                new_entry.Message = entry.Message.Remove(44, entry.Message.Length - 44);
+
+                            List.Add(new_entry);
+                        }
+                        packet.Board = List;
+                        //Changes the action to list so the client will accept and display the list.
+                        packet.Action = MessageBoardAction.List;
+                        break;
+                    }
+                case MessageBoardAction.GetWords:
+                    //Finds the message
+                    MessageBoardMessage message = MessageBoardManager.FindMessage(packet.Name, packet.BoardID);
+                    //Check if its valid. Then sends a talk packet with the requested message.
+                    if (message.Author != null)
+                        client.Send(new TalkPacket((ChatType)packet.BoardID, message.Message));
+                    break;
+
+                case MessageBoardAction.Del:
+                    //Finds the message
+                    MessageBoardMessage msg = MessageBoardManager.FindMessage(packet.Name, packet.BoardID);
+                    //Checks if valid, checks if the author is the client, then deletes.
+                    if (msg.Author != null)
+                        if (client.Name == msg.Author)
+                            MessageBoardManager.Delete(msg, packet.BoardID);
+                    break;
+
+            }
+            client.Send(packet);
         }
         #endregion
 

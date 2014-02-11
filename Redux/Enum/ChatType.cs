@@ -65,7 +65,7 @@
         /// <summary>
         /// [2013]
         /// </summary>
-        Ghost = Talk +13,
+        Ghost = Talk + 13,
 
         /// <summary>
         /// [2014]

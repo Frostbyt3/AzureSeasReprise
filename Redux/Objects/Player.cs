@@ -55,7 +55,7 @@ namespace Redux.Game_Server
         public uint MiningAttempts = 0;
         public MiningDrops MineDrops;
 
-        public long OfflineTrainingTime, LoginTime = DateTime.Now.Ticks, OnlineTraining = Common.Clock;
+        public long OfflineTrainingTime, LoginTime = DateTime.Now.Ticks, OnlineTraining = Common.Clock, LeaderLoc = Common.Clock;
         public short OnlinePoints = 0;
 
         public Pet Pet;
@@ -131,6 +131,11 @@ namespace Redux.Game_Server
         #endregion
 
         #region Accessors
+        public ulong VirtuePoints
+        {
+            get { return Character.VirtuePoints; }
+            set { Character.VirtuePoints = (uint)value; }
+        }
         public new ushort X
         {
             get { return (ushort)Location.X; }
@@ -328,11 +333,17 @@ namespace Redux.Game_Server
             bool uplev = false;
             while (Character.Level < 130 && Character.Experience >= requires.Experience)
             {
+                //Virtue Points
+                if (Team != null && Calculations.GetDistance(this, Team.Leader) < 25 && Level < 70 && Team.Leader.Level > 70 && Team.Leader.Level > Level + 20)
+                {
+                    uint VP = (uint)(Level * Math.Max(Level / 10, 1));
+                    VirtuePoints += VP;
+                }
                 Character.Experience -= requires.Experience;
                 uplev = true;
                 Level++;
                 ushort Multiplier = 1;
-                if (Character.PreviousLevel != 0 && Character.PreviousLevel > 120)
+                if (Character.PreviousLevel != 0 && Character.PreviousLevel > 120 && Level >= 120)
                 {
                     Multiplier = (ushort)((Character.PreviousLevel - Level) + 1);
                     Level = Character.PreviousLevel;
@@ -365,6 +376,7 @@ namespace Redux.Game_Server
                 Experience = 0;
                 while (requires != null && _time >= timeRemaining)
                 {
+                    Level++;
                     ushort Multiplier = 1;
                     if (Character.PreviousLevel != 0 && Character.PreviousLevel > 120)
                     {
@@ -534,6 +546,10 @@ namespace Redux.Game_Server
                 Pet.RemovePet();
             }
             SpawnPacket.StatusEffects = ClientEffect.Dead;
+            if (PK > 99)
+                SpawnPacket.StatusEffects |= ClientEffect.Black;
+            else if (PK > 29)
+                SpawnPacket.StatusEffects |= ClientEffect.Red;
             AddEffect(ClientEffect.Ghost, 0);
             AddStatus(Enum.ClientStatus.ReviveTimeout, 0, 18 * Common.MS_PER_SECOND);
 
@@ -554,19 +570,7 @@ namespace Redux.Game_Server
 
             RemoveEffect(ClientEffect.Dead);
             RemoveEffect(ClientEffect.Ghost);
-            if (PK >= 100 && !HasEffect(ClientEffect.Black))
-            {
-                AddEffect(ClientEffect.Black, ((PK - 99) * 6) * 60000, true);//Adds black name
-            }
-            if (PK >= 30 && PK < 100 && !HasEffect(ClientEffect.Red))
-            {
-                AddEffect(ClientEffect.Red, ((PK - 29) * 6) * 60000, true);//Adds red name
-            }
-            if (PK < 30 && HasEffect(ClientEffect.Red))
-            {
-                RemoveEffect(ClientEffect.Red);
-            }
-
+            
             //Will only do something if revive skill is done. All logical checks are done in packet handler.
             RemoveStatus(Enum.ClientStatus.ReviveTimeout);
             Transformation = 0;
@@ -706,7 +710,7 @@ namespace Redux.Game_Server
                 }
             }
             UID = Character.UID;
-
+            VirtuePoints = Character.VirtuePoints;
             face = (ushort)(Character.Lookface / 10000);
             body = (ushort)(Character.Lookface % 10000);
             Location = new Point(Character.X, Character.Y);
@@ -746,6 +750,8 @@ namespace Redux.Game_Server
                 else
                     WarehouseManager.LoadItem(coItem);
             }
+            if (Life == 0)
+                Life = 1;
             SpawnPacket = SpawnEntityPacket.Create(this);
 
             if (Character.OfflineTGEntered != DateTime.MinValue)
@@ -919,33 +925,6 @@ namespace Redux.Game_Server
 
         #endregion
 
-        #region Reload Arrows
-        /*public void ReloadArrows()
-        {
-            if (Equipment.Owner.HasItem(1050002))
-            {
-                ItemAction.EquipItem: client.HandleItemEquipPacket(packet); break;
-            }
-            toReload = FindItemIDInInventory(1050001);
-            if (toReload != null)
-            {
-                Equipment.EquipItem(toReload, ItemLocation.WeaponL);
-                return;
-            }
-            toReload = FindItemIDInInventory(1050000);
-            if (toReload != null)
-            {
-                Equipment.EquipItem(toReload, ItemLocation.WeaponL);
-                return;
-            }
-        }
-        public Structures.ConquerItem FindItemIDInInventory(uint ID)
-        {
-            var pos = from I in Inventory.Values where I.StaticID == ID orderby I.CurrentDura descending select I;
-            return pos.FirstOrDefault();
-        }*/
-        #endregion
-
         #region Delayed Action Timeout
         public void On_Player_Timer()
         {
@@ -955,25 +934,6 @@ namespace Redux.Game_Server
                 return;
             if (!Constants.DEBUG_MODE && Common.Clock - LastPingReceived > Common.MS_PER_SECOND * 45)
             { Disconnect(); Console.WriteLine("Connection timeout for {0} with {1} ms latency", Name, Common.Clock - LastPingReceived); return; }
-            
-            if (PK > 0 && Common.Clock - LastPkPoint > Common.MS_PER_MINUTE * 6)//If last Pk point has been 6 minutes
-                {
-                    PK -= 1;//Minus 1 PK point
-                    LastPkPoint = Common.Clock;//Set last reduction time to now
-                    Send(UpdatePacket.Create(UID, UpdateType.Pk, (ulong)PK));
-
-                    //If Between 30 and 99 and does not have Red Name.....then Add redname
-                    if (PK >= 30 && PK < 100 && !HasEffect(ClientEffect.Red))
-                    {
-                        RemoveEffect(ClientEffect.Black);
-                        AddEffect(ClientEffect.Red, ((PK - 29) * 6) * 60000, true);//Adds red name
-                    }
-
-                    //If under 30 PK, remove redname
-                    if (PK < 30 && HasEffect(ClientEffect.Red))
-                        RemoveEffect(ClientEffect.Red);
-                }
-            
             if (Alive)
             {
                 if ((Character.HeavenBlessExpires > DateTime.Now && stamina < 150) || stamina < 100)
@@ -990,7 +950,23 @@ namespace Redux.Game_Server
                         AddEffect(ClientEffect.XpStart, 20000);
                     LastXpUp = Common.Clock;
                 }
-                
+            	if (PK > 0 && Common.Clock - LastPkPoint > Common.MS_PER_MINUTE * 6)//If last Pk point has been 6 minutes
+                {
+                    PK -= 1;//Minus 1 PK point
+                    LastPkPoint = Common.Clock;//Set last reduction time to now
+                    Send(UpdatePacket.Create(UID, UpdateType.Pk, (ulong)PK));
+
+                    //If Between 30 and 99 and does not have Red Name.....then Add redname
+                    if (PK >= 30 && PK < 100 && !HasEffect(ClientEffect.Red))
+                    {
+                        RemoveEffect(ClientEffect.Black);
+                        AddEffect(ClientEffect.Red, ((PK - 29) * 6) * 60000, true);//Adds red name
+                    }
+
+                    //If under 30 PK, remove redname
+                    if (PK < 30 && HasEffect(ClientEffect.Red))
+                        RemoveEffect(ClientEffect.Red);
+                }
 
                 if (Mining && Common.Clock > NextMine && Map.MapInfo.Type.HasFlag(MapTypeFlags.MineEnable))
                 {
@@ -1115,6 +1091,20 @@ namespace Redux.Game_Server
 
                     OnlineTraining = Common.Clock + Common.MS_PER_MINUTE;
                 }
+
+                if (Team != null && Team.Leader.Map.DynamicID == Map.DynamicID && Common.Clock > (LeaderLoc + (Common.MS_PER_SECOND * 5)))
+                {
+                    GeneralActionPacket pack = new GeneralActionPacket();
+
+                    pack.UID = Team.Leader.UID;
+                    pack.Data2Low = Team.Leader.X;
+                    pack.Data2High = Team.Leader.Y;
+                    pack.Data1 = Team.Leader.UID;
+                    pack.Action = Enum.DataAction.LeaderLocation;
+
+                    Send(pack);
+                    LeaderLoc = Common.Clock;
+                }
                 //XP up
 
                 //Up Heaven Bless
@@ -1214,6 +1204,11 @@ namespace Redux.Game_Server
         #region Handle Jump Packet
         public void HandleJump(GeneralActionPacket packet)
         {
+            /*if (jumpcheck == false)
+            {
+                pack = packet;
+                jumpcheck = true;
+            }*/
             if (Common.MapService.Valid((ushort)Map.ID, X, Y, packet.Data1Low, packet.Data1High))
             {
                 /* var deltaX = (X - packet.Data1) ;
@@ -1316,6 +1311,11 @@ namespace Redux.Game_Server
         public void SendSysMessage(string msg)
         {
             Send(new TalkPacket(ChatType.System, msg, ChatColour.Red));
+        }
+        public void SendServerMessage(string msg, ChatType type = ChatType.GM)
+        {
+            foreach (Player player in PlayerManager.Players.Values)
+                Send(new TalkPacket(type, msg));
         }
         #endregion
 
@@ -1515,6 +1515,14 @@ namespace Redux.Game_Server
 
             if (Mining)
                 StopMining();
+
+            if (Life == 0)
+            {
+                Life = 1;
+                X = Map.MapInfo.SpawnX;
+                Y = Map.MapInfo.SpawnY;
+                Character.Map = Map.MapInfo.SpawnID;
+            }
 
             PlayerManager.RemovePlayer(this);
             MapManager.RemovePlayer(this);

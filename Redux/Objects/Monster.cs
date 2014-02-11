@@ -102,6 +102,14 @@ namespace Redux.Game_Server
 
         public override void Kill(uint _dieType, uint _attacker)
         {
+            if (PlayerManager.Players.ContainsKey(_attacker))
+            {
+                var player = PlayerManager.Players[_attacker];
+                player.Xp++;
+
+                if (player.HasEffect(ClientEffect.Cyclone) || player.HasEffect(ClientEffect.Superman))
+                    player.KOCount++;
+            }
             base.Kill(_dieType, _attacker);
             TargetID = 0;
             Mode = MonsterMode.Dormancy;

@@ -53,6 +53,7 @@
             MSG_SKILL_EFFECT = 1105,
             MSG_GUILD_REQUEST = 1107,
             MSG_EXAMINE_ITEM = 1108,
+            MSG_MESSAGE_BOARD = 1111,
             MSG_NPC_SPAWN = 2030,
             MSG_NPC_INITIAL = 2031,
             MSG_NPC_DIALOG = 2032,
