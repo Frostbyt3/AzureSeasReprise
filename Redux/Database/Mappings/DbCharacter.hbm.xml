@@ -37,6 +37,8 @@
     <property name="DoubleExpExpires" column="DoubleExpExpires"/>
     <property name="TrainingTime" column="TrainingTime"/>
     <property name="OfflineTGEntered" column="OfflineTGEntered"/>
+    <property name="QuizPoints" column="QuizPoints"/>
+    <property name="VirtuePoints" column="VirtuePoints"/>
   </class>
 
 </hibernate-mapping>

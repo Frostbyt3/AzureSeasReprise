@@ -306,7 +306,7 @@
     <Compile Include="Npcs\Phoenix Castle\[102063] ForestEscort.cs" />
     <Compile Include="Npcs\Phoenix Castle\[48] Warehouse.cs" />
     <Compile Include="Npcs\Promotion Centre\[10000] TaoistMoon.cs" />
-    <Compile Include="Npcs\Promotion Centre\[400] Archer God.cs" />
+    <Compile Include="Npcs\Promotion Centre\[400] ArcherGoddess.cs" />
     <Compile Include="Npcs\Promotion Centre\[10001] Warrior God.cs" />
     <Compile Include="Npcs\Promotion Centre\[10022] Trojan Star.cs" />
     <Compile Include="Npcs\Twin City\[1337] AzureGuide.cs" />

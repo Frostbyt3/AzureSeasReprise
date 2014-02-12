@@ -9,13 +9,13 @@ namespace Redux.Npcs
     public class NPC_400 : INpc
     {
         /// <summary>
-        /// Handles NPC usage for [400] Archer God
+        /// Handles NPC usage for [400] ArcherGoddess
         /// </summary>
         public NPC_400(Game_Server.Player _client)
             : base(_client)
         {
             ID = 400;
-            Face = 10;
+            Face = 4;
         }
 
         public override void Run(Game_Server.Player client, ushort linkback)
