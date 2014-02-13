@@ -20,6 +20,8 @@ namespace Redux.Game_Server
         public Point Location { get; set; }
         public Map Map { get; set; }
         public uint UID { get; set; }
+        public ushort PrevMap;
+        public ushort PrevX, PrevY;
         public CombatStatistics CombatStats;
         public ConcurrentDictionary<Enum.ClientEffect, long> ClientEffects { get; private set; }
         public ConcurrentDictionary<Enum.ClientStatus, Structures.ClientStatus> ClientStatuses { get; private set; }

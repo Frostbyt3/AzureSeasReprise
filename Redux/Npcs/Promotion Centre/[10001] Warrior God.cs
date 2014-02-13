@@ -124,7 +124,9 @@ namespace Redux.Npcs
                             }
                             else
                             {
-                                AddText("You must reach level 40, I will not promote you yet.");
+                                AddText("You must reach level 40 with the minimum following attributes: ");
+                                AddText("Strength: 80, Agility: 25, Vitality: 20. ");
+                                AddText("I will not promote you yet.");
                                 AddOption("I'll work harder.", 255);
                             }
                             break;
@@ -142,7 +144,9 @@ namespace Redux.Npcs
                             }
                             else
                             {
-                                AddText("You must reach level 70 and bring me an Emerald in order to be promoted!");
+                                AddText("You must reach level 70, bring me an Emerald and have the minimum following attributes: ");
+                                AddText("Strength: 140, Agility: 45, Vitality: 32. ");
+                                AddText("I will not promote you yet.");
                                 AddOption("I'll work harder.", 255);
                             }
                             break;
@@ -168,7 +172,9 @@ namespace Redux.Npcs
                             }
                             else
                             {
-                                AddText("You must reach level 100 and bring me a Meteor in order to be promoted!");
+                                AddText("You must reach level 100, bring me a Meteor and have the minimum following attributes: ");
+                                AddText("Strength: 205, Agility: 60, Vitality: 42. ");
+                                AddText("I will not promote you yet.");
                                 AddOption("I'll work harder.", 255);
                             }
                             break;
@@ -185,7 +191,9 @@ namespace Redux.Npcs
                             }
                             else
                             {
-                                AddText("You must reach level 110 and bring me a Moon Box in order to be promoted!");
+                                AddText("You must reach level 110, bring me a MoonBox and have the minimum following attributes: ");
+                                AddText("Strength: 225, Agility: 65, Vitality: 47. ");
+                                AddText("I will not promote you yet.");
                                 AddOption("I'll work harder.", 255);
                             }
                             break;

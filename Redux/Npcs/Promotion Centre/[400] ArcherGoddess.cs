@@ -122,12 +122,14 @@ namespace Redux.Npcs
                             }
                             else
                             {
-                                AddText("You must be level 40, I will not promote you yet.");
+                                AddText("You must be level 40 with the minimum following attributes: ");
+                                AddText("Strength: 25, Agility: 90, Vitality: 12. ");
+                                AddText("I will not promote you yet.");
                                 AddOption("I'll work harder.", 255);
                             }
                             break;
                         case 2://level 70
-                            if (client.Level >= 70 && client.HasItem(Constants.EMERALD_ID) && client.Strength >= 45 && client.Agility >= 150 && client.Vitality >= 2)
+                            if (client.Level >= 70 && client.HasItem(Constants.EMERALD_ID) && client.Strength >= 45 && client.Agility >= 150 && client.Vitality >= 22)
                             {
                                 client.DeleteItem(Constants.EMERALD_ID);
                                 client.CreateItem(Constants.METEOR_ID);
@@ -140,7 +142,9 @@ namespace Redux.Npcs
                             }
                             else
                             {
-                                AddText("You must reach level 70 and bring me an Emerald in order to be promoted!");
+                                AddText("You must reach level 70, bring me an Emerald and have the minimum following attributes: ");
+                                AddText("Strength: 45, Agility: 150, Vitality: 22. ");
+                                AddText("I will not promote you yet.");
                                 AddOption("I'll work harder.", 255);
                             }
                             break;
@@ -166,7 +170,9 @@ namespace Redux.Npcs
                             }
                             else
                             {
-                                AddText("You must reach level 100 and bring me a Meteor in order to be promoted!");
+                                AddText("You must reach level 100, bring me a Meteor and have the minimum following attributes: ");
+                                AddText("Strength: 60, Agility: 215, Vitality: 32. ");
+                                AddText("I will not promote you yet.");
                                 AddOption("I'll work harder.", 255);
                             }
                             break;
@@ -183,7 +189,9 @@ namespace Redux.Npcs
                             }
                             else
                             {
-                                AddText("You must reach level 110 and bring me a Moon Box in order to be promoted!");
+                                AddText("You must reach level 110, bring me a MoonBox and have the minimum following attributes: ");
+                                AddText("Strength: 68, Agility: 235, Vitality: 34. ");
+                                AddText("I will not promote you yet.");
                                 AddOption("I'll work harder.", 255);
                             }
                             break;

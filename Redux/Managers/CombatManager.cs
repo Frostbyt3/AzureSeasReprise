@@ -392,7 +392,6 @@ namespace Redux.Managers
             packet.Data = owner.UID;
             packet.AddTarget(owner.UID, (uint)skill.Power);
             owner.Mana += (ushort)skill.Power;
-            owner.Life += (ushort)skill.Power;
             if (owner is Player)
                 AddSkillExperience(skill.ID, (ulong)skill.Power);
         }
@@ -611,7 +610,7 @@ namespace Redux.Managers
             pet.Y = owner.Y;
             pet.Map = owner.Map;
             pet.LastMove = Common.Clock;
-            pet.SpawnPacket.Lookface = 379;//179 or 279
+            //pet.SpawnPacket.Lookface = 379;//179 or 279
             owner.Map.Insert(pet);
             owner.UpdateSurroundings();
             owner.SendToScreen(pet.SpawnPacket);

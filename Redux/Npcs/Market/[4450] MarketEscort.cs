@@ -33,7 +33,7 @@ namespace Redux.Npcs
                     AddOption("No. I shall stay here.", 255);
                     break;
                 case 1:
-                    _client.ChangeMap(1002);
+                    _client.PreviousMap();
                     break;
             }
             AddFinish();

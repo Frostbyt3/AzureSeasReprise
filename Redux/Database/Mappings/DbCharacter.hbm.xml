@@ -27,6 +27,9 @@
     <property name="Map" column="Map"/>
     <property name="X" column="X"/>
     <property name="Y" column="Y"/>
+    <property name="PrevMap" column="PrevMap"/>
+    <property name="PrevX" column="PrevX"/>
+    <property name="PrevY" column="PrevY"/>
     <property name="Pk" column="Pk"/>
     <property name="Profession" column="Profession"/>
     <property name="Profession1" column="Profession1"/>

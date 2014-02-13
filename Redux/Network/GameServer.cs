@@ -719,7 +719,7 @@ namespace Redux.Game_Server
 
                         packet.Strings.AddString(toAdd);
                         client.Send(packet);
-                        Console.WriteLine("Sent");
+                        //Console.WriteLine("Sent"); // No reason to keep spamming the Console with "Sent"
                     }
                     break;
             }

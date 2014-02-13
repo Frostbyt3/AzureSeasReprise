@@ -25,6 +25,9 @@ namespace Redux.Database.Domain
         public virtual uint Map { get; set; }
         public virtual ushort X { get; set; }
         public virtual ushort Y { get; set; }
+        public virtual uint PrevMap { get; set; }
+        public virtual ushort PrevX { get; set; }
+        public virtual ushort PrevY { get; set; }
         public virtual short Pk { get; set; }
         public virtual byte Profession { get; set; }
         public virtual byte Profession1 { get; set; }
