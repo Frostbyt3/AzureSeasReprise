@@ -289,6 +289,10 @@
     <Compile Include="Npcs\Desert City\[46] Warehouse.cs" />
     <Compile Include="Npcs\Desert City\[10051] Guide.cs" />
     <Compile Include="Npcs\Desert City\[102091] DesertEscort.cs" />
+    <Compile Include="Npcs\DisCity\[4012] SolarSaint L3.cs" />
+    <Compile Include="Npcs\DisCity\[4011] SolarSaint L2-2.cs" />
+    <Compile Include="Npcs\DisCity\[4010] SolarSaint L2-1.cs" />
+    <Compile Include="Npcs\DisCity\[4009] SolarSaint L1.cs" />
     <Compile Include="Npcs\Guild Map\[6010] Warden.cs" />
     <Compile Include="Npcs\Guild Map\[6702] RightGate.cs" />
     <Compile Include="Npcs\Guild Map\[6701] LeftGate.cs" />
@@ -303,6 +307,7 @@
     <Compile Include="Npcs\Market\[4450] MarketEscort.cs" />
     <Compile Include="Npcs\Market\[44] Warehouse.cs" />
     <Compile Include="Npcs\Market\[7050] Compose Items.cs" />
+    <Compile Include="Npcs\Old Plains %281216%29\[4008] OldExplorer.cs" />
     <Compile Include="Npcs\Phoenix Castle\[102063] ForestEscort.cs" />
     <Compile Include="Npcs\Phoenix Castle\[48] Warehouse.cs" />
     <Compile Include="Npcs\Promotion Centre\[10000] TaoistMoon.cs" />
